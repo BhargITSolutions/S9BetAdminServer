@@ -1,0 +1,1 @@
+function showMessage(t,o,e){swal({position:"top-end",title:e,text:t,type:o,timer:1500,showConfirmButton:!1})}

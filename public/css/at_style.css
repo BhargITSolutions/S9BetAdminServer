@@ -1,0 +1,276 @@
+.marquee {
+    width: 47%;
+    padding: 17px;
+    float: left
+}
+
+div#liveCommentary {
+    float: left;
+    width: 10%;
+    text-align: center;
+    padding: 2% 0 0 0;
+    color: green;
+    font-weight: 700
+}
+
+.popup_form {
+    width: 100%;
+    display: inline-block
+}
+
+.title_popup {
+    width: 100%;
+    display: inline-block;
+    background: #000;
+    padding: 5px 10px;
+    color: #ffb80c
+}
+
+.title_popup #tital_change {
+    font-size: 13px;
+    line-height: 25px;
+    color: #fff;
+    font-weight: 700
+}
+
+.title_popup span {
+    font-size: 13px;
+    line-height: 25px
+}
+
+.content_popup {
+    display: inline-block;
+    width: 100%
+}
+
+.popup_form_row {
+    display: inline-block;
+    width: 100%
+}
+
+.popup_col_1 {
+    width: 10%;
+    float: left;
+    padding: 5px 5px
+}
+
+.popup_col_2 {
+    width: 15%;
+    float: left;
+    padding: 5px 5px
+}
+
+.popup_col_3 {
+    width: 30%;
+    float: left;
+    padding: 5px 5px
+}
+
+.popup_col_4 {
+    width: 32%;
+    float: left;
+    padding: 5px 10px
+}
+
+.popup_col_6 {
+    width: 50%;
+    float: left;
+    padding: 5px 15px
+}
+
+.popup_col_12 {
+    width: 100%;
+    float: left;
+    padding: 5px 10px
+}
+
+.block_2 {
+    float: left;
+    padding: 5px 10px
+}
+
+.popup_form_row label {
+    font-size: 12px;
+    font-weight: 400;
+    width: 100%;
+    display: inline-block
+}
+
+.sub_heading {
+    width: 98%;
+    display: inline-block;
+    margin: 5px 10px;
+    background: #ccc;
+    color: #000;
+    font-size: 12px;
+    padding: 0 10px
+}
+
+.sub_heading #tital_change {
+    font-size: 13px;
+    line-height: 25px
+}
+
+.sub_heading_tabel {
+    width: 100%;
+    display: inline-block;
+    background: #ccc;
+    color: #000;
+    font-size: 12px;
+    padding: 5px 10px
+}
+
+button {
+    padding: 0;
+    border: 0;
+    background: 0 0
+}
+
+.content_bg {
+    background: #fff;
+    width: 100%;
+    float: left;
+    padding-bottom: 10px
+}
+
+.blue_button {
+    color: #fff;
+    font-size: 13px;
+}
+
+.com_blue_button {
+    background: #000;
+    padding: 5px 20px;
+    color: #fff;
+    font-size: 13px;
+    min-width: 150px
+}
+
+.red_button {
+    padding: 5px 20px !important;
+    color: #fff;
+    font-size: 13px;
+    min-width: 90px
+}
+
+.tabel_content table {
+    width: 100%
+}
+
+.tabel_content table tbody tr td {
+    padding: 5px 5px;
+    vertical-align: middle
+}
+
+.title_new_at {
+    width: 100%;
+    display: inline-block;
+    background: #000;
+    padding: 5px 10px;
+    color: #fff
+}
+
+.des {
+    background: #fff
+}
+
+table.dataTable.no-footer {
+    border-bottom: 1px solid #ddd
+}
+
+.user_icon {
+    color: #fff;
+    font-size: 12px;
+    padding: 5px
+}
+
+.view_icon {
+    border: 1px solid #ddd;
+    padding: 5px;
+    float: right;
+    background: #fff
+}
+
+table.jambo_table tbody tr:hover td {
+    background: 0 0
+}
+
+.view_icon i {
+    color: #000
+}
+
+.btn_new {
+    padding: 5px 1px;
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+    border-left: 1px solid #ddd;
+    color: #000;
+    font-weight: 400
+}
+
+.nav-md {
+    background: #fff !important;
+    background-repeat: repeat
+}
+
+/* .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 20px
+}
+
+.switch input {
+    display: none
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: red;
+    -webkit-transition: .4s;
+    transition: .4s
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 0;
+    background-color: #fff;
+    -webkit-transition: .4s;
+    transition: .4s
+}
+
+input.inpsize {
+    width: 70px
+}
+
+input:checked+.slider {
+    background-color: green
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #2196f3
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px)
+}
+
+.slider.round {
+    border-radius: 34px
+}
+
+.slider.round:before {
+    border-radius: 50%
+} */
