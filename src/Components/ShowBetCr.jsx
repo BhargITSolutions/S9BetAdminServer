@@ -12,7 +12,10 @@ function ShowBetCr() {
     const { eid, marketNumber, marketSId } = useParams();
     const [betUser, setBetUser] = useState([])
     const [calcUsers, setCalcUsers] = useState([])
-    const [totalAllUsersAmount, setTotalAllUsersAmount] = useState([]);
+    const [totalAllUsersAmount, setTotalAllUsersAmount] = useState(0);
+    const [parent, setParent] = useState('Parent A/C')
+    const [parentAmount, setParentAmount] = useState(0)
+
     const [perPage, setPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     // const [load, setLoad] = useState(false)
@@ -33,6 +36,8 @@ function ShowBetCr() {
         ParamsMarket = "Fancy"
     }
 
+    console.log("Parent amount header : " + parentAmount)
+    console.log("Total amount : " + totalAllUsersAmount)
 
     useEffect(() => {
 
@@ -44,9 +49,15 @@ function ShowBetCr() {
 
     useEffect(() => {
         if (calcUsers.length === 0) {
+            console.log("Length of calce user useeffct : ", calcUsers.length)
             filterParentChild();
+            console.log("Parent value inside useEffect: ", parent);
+            console.log("ParentAmount value inside useEffect: ", parentAmount);
         }
+
+
     }, [calcUsers])
+
 
     const fetchBetHistoryApi = async () => {
         try {
@@ -213,9 +224,11 @@ function ShowBetCr() {
         }
     };
 
-    const filterParentChild = (id) => {
+    const filterParentChild = (id, row, Clickedparent, ClickedParentAmount) => {
 
+        console.log("Filter parent callled again")
         console.log("ID is : " + id)
+        console.log("Clicked User is : " + row)
 
 
         const tableHeaders = document.querySelectorAll("#datatables th");
@@ -247,14 +260,14 @@ function ShowBetCr() {
                 // Iterate over each row to get the content of the corresponding td in the target column
                 const columnContent = [];
 
-                tableRows.forEach(row => {
+                tableRows.forEach((row, index) => {
                     const cells = row.querySelectorAll("td");
                     const cellContent = cells[targetIndex].textContent;
                     const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
 
                     // columnContent.push(cellContent);
                     // columnContentPL.push(cellContentPL);
-                    columnContent.push({ content: cellContent, pl: cellContentPL })
+                    columnContent.push({ content: cellContent, pl: cellContentPL, row: index })
 
                 });
 
@@ -263,17 +276,18 @@ function ShowBetCr() {
 
                 const contentToPL = {};
 
-                // Iterate over each item in the columnContent array
-                columnContent.forEach(item => {
+                columnContent.forEach((item) => {
                     const content = item.content;
                     const pl = item.pl;
+                    const lastRow = item.row;
 
                     // If content exists in contentToPL, add its P_L to the existing total
                     if (contentToPL.hasOwnProperty(content)) {
-                        contentToPL[content] += pl;
+                        contentToPL[content].totalPL += pl; // Add to total P_L
+                        contentToPL[content].lastRow = lastRow; // Update last row index
                     } else {
-                        // Otherwise, initialize the content with its P_L
-                        contentToPL[content] = pl;
+                        // Otherwise, initialize the content with its P_L and last row index
+                        contentToPL[content] = { totalPL: pl, lastRow: lastRow };
                     }
                 });
 
@@ -284,7 +298,7 @@ function ShowBetCr() {
                 // Iterate over the keys of resultAmountMap
                 for (const userN in contentToPL) {
                     // Create an object with keys 'UserN' and 'amount'
-                    const obj = { UserN: userN, amount: contentToPL[userN] };
+                    const obj = { UserN: userN, amount: contentToPL[userN].totalPL, row: contentToPL[userN].lastRow };
                     // Push the object to the calcUsers array
                     calcUserss.push(obj);
                 }
@@ -299,76 +313,277 @@ function ShowBetCr() {
                 console.log("Target header not found.");
             }
         } else {
-            // Filter tableHeaders to include only elements with value={roleId + 1}
-            const targetHeaders = Array.from(tableHeaders).filter(header => {
-                return parseInt(header.getAttribute("value")) == parseInt(id) + 1;
-            });
-            const targetHeaders1 = Array.from(tableHeaders).filter(header => {
-                return header.textContent == "P_L";
-            });
 
-            console.log("Target Headers : " + targetHeaders)
-            console.log("Target Headers1 : " + targetHeaders1)
-            // Ensure we found the target header
-            if (targetHeaders.length > 0 && targetHeaders1.length > 0) {
-                console.log("Targetd th value is : ", targetHeaders);
-                console.log("Targetd th value 1 is : ", targetHeaders1);
+            if (id != 7) {
 
-
-                // Get the index of the target header
-                const targetIndex = Array.from(tableHeaders).indexOf(targetHeaders[0]);
-                const targetIndexPL = Array.from(tableHeaders).indexOf(targetHeaders1[0]);
-
-                // Select all table rows
-                const tableRows = document.querySelectorAll("#datatables tbody tr");
-
-                // Iterate over each row to get the content of the corresponding td in the target column
-                const columnContent = [];
-
-                const cells = tableRows[0].querySelectorAll("td");
-                const cellContent = cells[targetIndex].textContent;
-                const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
-                columnContent.push({ content: cellContent, pl: cellContentPL })
-
-                console.log("Content of the target column:", columnContent);
-
-
-                const contentToPL = {};
-
-                // Iterate over each item in the columnContent array
-                columnContent.forEach(item => {
-                    const content = item.content;
-                    const pl = item.pl;
-
-                    // If content exists in contentToPL, add its P_L to the existing total
-                    if (contentToPL.hasOwnProperty(content)) {
-                        contentToPL[content] += pl;
-                    } else {
-                        // Otherwise, initialize the content with its P_L
-                        contentToPL[content] = pl;
-                    }
+                // Filter tableHeaders to include only elements with value={roleId + 1}
+                const targetHeaders = Array.from(tableHeaders).filter(header => {
+                    return parseInt(header.getAttribute("value")) == parseInt(id) + 1;
+                });
+                const targetHeaders1 = Array.from(tableHeaders).filter(header => {
+                    return header.textContent == "P_L";
                 });
 
-                console.log("Content and their corresponding total P_L:", contentToPL);
+                console.log("Target Headers : " + targetHeaders)
+                console.log("Target Headers1 : " + targetHeaders1)
+                // Ensure we found the target header
+                if (targetHeaders.length > 0 && targetHeaders1.length > 0) {
+                    console.log("Targetd th value is : ", targetHeaders);
+                    console.log("Targetd th value 1 is : ", targetHeaders1);
 
-                const calcUserss = [];
 
-                // Iterate over the keys of resultAmountMap
-                for (const userN in contentToPL) {
-                    // Create an object with keys 'UserN' and 'amount'
-                    const obj = { UserN: userN, amount: contentToPL[userN] };
-                    // Push the object to the calcUsers array
-                    calcUserss.push(obj);
+                    // Get the index of the target header
+                    const targetIndex = Array.from(tableHeaders).indexOf(targetHeaders[0]);
+                    const targetIndexPL = Array.from(tableHeaders).indexOf(targetHeaders1[0]);
+
+                    // Select all table rows
+                    const tableRows = document.querySelectorAll("#datatables tbody tr");
+
+                    console.log("Table Roows : " + tableRows)
+
+                    // Iterate over each row to get the content of the corresponding td in the target column
+                    const columnContent = [];
+                    const allColumnContent = [];
+
+                    const cells = tableRows[row].querySelectorAll("td");
+                    const cellContent = cells[targetIndex].textContent;
+                    const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
+                    columnContent.push({ content: cellContent, pl: cellContentPL, row: row })
+
+                    // console.log("Content of the target column:", columnContent);
+
+
+                    tableRows.forEach((row, index) => {
+                        const cells = row.querySelectorAll("td");
+                        const cellContent = cells[targetIndex].textContent;
+                        const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
+                        allColumnContent.push({ content: cellContent, pl: cellContentPL, row: index });
+                    });
+
+                    console.log("Content of the target column:", columnContent);
+                    console.log("Content of the target ALL column:", allColumnContent);
+
+
+                    const contentToPL = {};
+
+                    columnContent.forEach((item) => {
+                        const content = item.content;
+                        const pl = item.pl;
+                        const lastRow = item.row;
+
+                        // If content exists in contentToPL, add its P_L to the existing total
+                        if (contentToPL.hasOwnProperty(content)) {
+                            contentToPL[content].totalPL += pl; // Add to total P_L
+                            contentToPL[content].lastRow = lastRow; // Update last row index
+                        } else {
+                            // Otherwise, initialize the content with its P_L and last row index
+                            contentToPL[content] = { totalPL: pl, lastRow: lastRow };
+                        }
+                    });
+
+                    console.log("Content and their corresponding total P_L:", contentToPL);
+
+                    const contentToPLall = {};
+
+                    allColumnContent.forEach((item) => {
+                        const content = item.content;
+                        const pl = item.pl;
+                        const lastRow = item.row;
+
+                        // If content exists in contentToPL, add its P_L to the existing total
+                        if (contentToPLall.hasOwnProperty(content)) {
+                            contentToPLall[content].totalPL += pl; // Add to total P_L
+                            contentToPLall[content].lastRow = lastRow; // Update last row index
+                        } else {
+                            // Otherwise, initialize the content with its P_L and last row index
+                            contentToPLall[content] = { totalPL: pl, lastRow: lastRow };
+                        }
+                    });
+
+                    console.log("Content and their corresponding total P_L of All :", contentToPLall);
+
+                    const calcUserss = [];
+
+                    // Iterate over the keys of resultAmountMap
+                    for (const userN in contentToPL) {
+                        // Create an object with keys 'UserN' and 'amount'
+                        const obj = { UserN: userN, amount: contentToPLall[userN].totalPL, row: contentToPL[userN].lastRow };
+                        // Push the object to the calcUsers array
+                        calcUserss.push(obj);
+                    }
+
+                    // Call the function with the resultAmountMap
+                    console.log("Total result amount Array of content to pl : " + JSON.stringify(calcUserss));
+                    setCalcUsers(calcUserss)
+                    // convertResultAmountToUsers(contentToPL);
+                    const Master = calcUsers[0].UserN;
+                    console.log("Master is : " + Master)
+                    console.log("Clicked parent : ", Clickedparent)
+                    console.log(" id + 1 : ", parseInt(id) + 1)
+                    // convertResultAmountToUsers(contentToPL);
+                    if (parseInt(id) + 1 >= roleId) {
+
+                        console.log("Role Id greater than 2 id block")
+                        // setTotalAllUsersAmount(0)
+                        if (ClickedParentAmount > 0) {
+
+                            console.log("Length of calce user useeffct : ", calcUsers.length)
+                            console.log("Clicked parent block")
+                            setParent(Clickedparent)
+                            console.log("Clicked parent amount before - : " + ClickedParentAmount + " " + typeof (ClickedParentAmount))
+                            setParentAmount(ClickedParentAmount * (-1))
+                            console.log("Clicked parent amount after - : " + ClickedParentAmount * (-1))
+
+                        } else {
+                            setParent(Clickedparent)
+                            setParentAmount(ClickedParentAmount * (-1))
+                        }
+                    } else {
+
+                        setParent(Clickedparent)
+                        setParentAmount(ClickedParentAmount)
+                    }
+
+
+
+
+
+                } else {
+                    console.log("Target header not found.");
                 }
 
-                // Call the function with the resultAmountMap
-                console.log("Total result amount Array of content to pl : " + JSON.stringify(calcUserss));
-                setCalcUsers(calcUserss)
-                // convertResultAmountToUsers(contentToPL);
 
             } else {
-                console.log("Target header not found.");
+
+                console.log("8888888888888888888888888")
+                const Master = calcUsers[0].UserN;
+                console.log("Master is : " + Master)
+                // const tableHeaders = document.querySelectorAll("#datatables th");
+
+                // Filter tableHeaders to include only elements with value={roleId + 1}
+                const targetHeaders = Array.from(tableHeaders).filter(header => {
+                    return parseInt(header.getAttribute("value")) == 8;
+                });
+                const targetHeaders1 = Array.from(tableHeaders).filter(header => {
+                    return header.textContent == "P_L";
+                });
+                const targetHeaders2 = Array.from(tableHeaders).filter(header => {
+                    return header.textContent == "Master";
+                });
+
+
+                console.log("Target Headers : " + targetHeaders)
+                console.log("Target Headers1 : " + targetHeaders1)
+                console.log("Target Headers1 : " + targetHeaders2)
+                // Ensure we found the target header
+                if (targetHeaders.length > 0 && targetHeaders1.length > 0) {
+                    console.log("Targetd th value is : ", targetHeaders);
+                    console.log("Targetd th value 1 is : ", targetHeaders1);
+                    console.log("Targetd th value 2 is : ", targetHeaders2);
+
+
+                    // Get the index of the target header
+                    const targetIndex = Array.from(tableHeaders).indexOf(targetHeaders[0]);
+                    const targetIndexPL = Array.from(tableHeaders).indexOf(targetHeaders1[0]);
+                    const targetIndexMaster = Array.from(tableHeaders).indexOf(targetHeaders2[0]);
+
+                    // Select all table rows
+                    const tableRows = document.querySelectorAll("#datatables tbody tr");
+
+                    console.log("Table Roows : " + tableRows)
+
+                    // Iterate over each row to get the content of the corresponding td in the target column
+                    const columnContent = [];
+
+                    // const cells = tableRows[row].querySelectorAll("td");
+                    // const cellContent = cells[targetIndex].textContent;
+                    // const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
+                    // columnContent.push({ content: cellContent, pl: cellContentPL, row: row })
+
+                    // console.log("Content of the target column:", columnContent);
+                    tableRows.forEach((row, index) => {
+                        const cells = row.querySelectorAll("td");
+                        const cellContent = cells[targetIndex].textContent;
+                        const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
+                        const cellContentMaster = cells[targetIndexMaster].textContent;
+                        columnContent.push({ content: cellContent, master: cellContentMaster, pl: cellContentPL, row: index });
+                    });
+
+
+                    // tableRows.forEach((row, index) => {
+                    //     const cells = row.querySelectorAll("td");
+                    //     const cellContent = cells[targetIndex].textContent;
+                    //     const cellContentPL = parseFloat(cells[targetIndexPL].textContent);
+                    //     columnContent.push({ content: cellContent, pl: cellContentPL, row: index });
+                    // });
+
+                    console.log("Content of the target column:", columnContent);
+
+                    const filterUser = columnContent.filter(item => item.master == Master)
+
+                    console.log("Content of the target column child master:", filterUser);
+
+
+                    const contentToPL = {};
+
+                    filterUser.forEach((item) => {
+                        const content = item.content;
+                        const pl = item.pl;
+                        const lastRow = item.row;
+
+                        // If content exists in contentToPL, add its P_L to the existing total
+                        if (contentToPL.hasOwnProperty(content)) {
+                            contentToPL[content].totalPL += pl; // Add to total P_L
+                            contentToPL[content].lastRow = lastRow; // Update last row index
+                        } else {
+                            // Otherwise, initialize the content with its P_L and last row index
+                            contentToPL[content] = { totalPL: pl, lastRow: lastRow };
+                        }
+                    });
+
+                    console.log("Content and their corresponding total P_L:", contentToPL);
+
+                    const calcUserss = [];
+
+                    // Iterate over the keys of resultAmountMap
+                    for (const userN in contentToPL) {
+                        // Create an object with keys 'UserN' and 'amount'
+                        const obj = { UserN: userN, amount: contentToPL[userN].totalPL, row: contentToPL[userN].lastRow };
+                        // Push the object to the calcUsers array
+                        calcUserss.push(obj);
+                    }
+
+                    // Call the function with the resultAmountMap
+                    console.log("Total result amount Array of content to pl : " + JSON.stringify(calcUserss));
+
+                    setCalcUsers(calcUserss)
+
+                    console.log(" id + 1 : ", id + 1)
+                    // convertResultAmountToUsers(contentToPL);
+                    if (id + 1 >= roleId) {
+
+                        console.log("Role Id greater than 2 id block")
+                        // setTotalAllUsersAmount(0)
+                        if (ClickedParentAmount > 0) {
+
+                            console.log("Clicked parent block")
+                            setParent(Clickedparent)
+                            setParentAmount(ClickedParentAmount * (-1))
+                        }
+                    } else {
+
+                        setParent(Clickedparent)
+                        setParentAmount(ClickedParentAmount)
+                    }
+
+
+
+                } else {
+                    console.log("Target header not found.");
+                }
+
             }
+
         }
 
     }
@@ -407,175 +622,362 @@ function ShowBetCr() {
                                 <div className="clearfix data-background">
                                     <div id="divLoading" />
                                     {/*Loading class */}
-                                    <div className="col-md-6 col-sm-6 col-xs-12 green_table">
-                                        <div className="link">PLUS ACCOUNT (Dena He)</div>
-                                        <div className="main_gre-red">
-                                            <table
-                                                className="table table-striped jambo_table bulk_action"
-                                                id=""
-                                            >
-                                                <thead>
-                                                    <tr className="headings">
-                                                        <th className="">Name</th>
-                                                        <th className="">Account</th>
-                                                        <th className="">Chips</th>
-                                                    </tr>
-                                                </thead>
-                                                {totalAllUsersAmount <= 0 ? <tbody id="denaHai">
+                                    {parent != 'Parent A/C' ?
 
-                                                    {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
-
-                                                        let str = item.UserN
-                                                        let newStr = str.split(" ")
-                                                        let id = newStr[newStr.length - 1]
-                                                        console.log("ID : " + id)
-
-
-                                                        return <tr key={index}>
-                                                            <td className=" ">{item.UserN}</td>
-                                                            <td className="acco">
-                                                                <a onClick={(e) => { e.preventDefault(); filterParentChild(id) }}>
-                                                                    {item.UserN}
-                                                                </a>
-                                                            </td>
-                                                            <td className=" ">{item.amount}</td>
-                                                        </tr>
-
-                                                    })}
-
-                                                    <tr>
-                                                        <td className=" ">Parent</td>
-                                                        <td className="acco">
-                                                            <a>Parent A/C</a>
-                                                        </td>
-                                                        <td className=" ">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className=" ">own</td>
-                                                        <td className="acco">
-                                                            <a>Own</a>
-                                                        </td>
-                                                        <td className=" ">{String(totalAllUsersAmount).replace(/^-/, '')}</td>
-                                                    </tr>
-                                                </tbody>
-                                                    :
-                                                    <tbody id="denaHai">
-                                                        {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
-
-                                                            let str = item.UserN
-                                                            let newStr = str.split(" ")
-                                                            let id = newStr[newStr.length - 1]
-                                                            console.log("ID : " + id)
-
-
-                                                            return <tr key={index}>
-                                                                <td className=" ">{item.UserN}</td>
-                                                                <td className="acco">
-                                                                    <a onClick={(e) => { e.preventDefault(); filterParentChild(id) }}>
-                                                                        {item.UserN}
-                                                                    </a>
-                                                                </td>
-                                                                <td className=" ">{item.amount}</td>
+                                        <>
+                                            <div className="col-md-6 col-sm-6 col-xs-12 green_table">
+                                                <div className="link">PLUS ACCOUNT (Dena He)</div>
+                                                <div className="main_gre-red">
+                                                    <table
+                                                        className="table table-striped jambo_table bulk_action"
+                                                        id=""
+                                                    >
+                                                        <thead>
+                                                            <tr className="headings">
+                                                                <th className="">Name</th>
+                                                                <th className="">Account</th>
+                                                                <th className="">Chips</th>
                                                             </tr>
+                                                        </thead>
+                                                        {totalAllUsersAmount < 0 && parentAmount >= 0 ?
+                                                            <tbody id="denaHai">
 
-                                                        })}
-                                                    </tbody>}
-                                                <tfoot>
-                                                    <tr>
-                                                        <td>Total</td>
-                                                        <td />
-                                                        <td id="denaTotal">{totalAllUsersAmount}</td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div className="col-md-6 col-sm-6 col-xs-12 red_table">
-                                        <div className="link minus">MINUS ACCOUNT (Lena He)</div>
-                                        <div className="main_gre-red">
-                                            <table
-                                                className="table table-striped jambo_table bulk_action"
-                                                id=""
-                                            >
-                                                <thead>
-                                                    <tr className="headings">
-                                                        <th className="">Name</th>
-                                                        <th className="">Account</th>
-                                                        <th className="">Chips</th>
-                                                    </tr>
-                                                </thead>
-                                                {totalAllUsersAmount > 0 ? <tbody id="lenaHai">
-                                                    {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
+                                                                    console.log("ID : " + id)
 
 
-                                                        let str = item.UserN
-                                                        let newStr = str.split(" ")
-                                                        let id = newStr[newStr.length - 1]
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
+
+                                                                })}
+
+                                                                <tr >
+                                                                    <td className=" ">Parent</td>
+                                                                    <td className="acco">
+                                                                        <a>{parent}</a>
+                                                                    </td>
+                                                                    {/* <td className=" ">{String(parentAmount).replace(/^-/, '')}</td> */}
+                                                                    <td className=" ">{parentAmount}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td className=" ">own</td>
+                                                                    <td className="acco">
+                                                                        <a>Own</a>
+                                                                    </td>
+                                                                    <td className=" ">{parent == 'Parent A/C' ? String(totalAllUsersAmount).replace(/^-/, '') : 0}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            :
+                                                            <tbody id="denaHai">
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
+                                                                    console.log("ID : " + id)
+
+
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
+
+                                                                })}
+                                                            </tbody>}
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td>Total</td>
+                                                                <td />
+                                                                <td id="denaTotal">{calcUsers.length > 0 && calcUsers
+                                                                    .filter(item => item.amount >= 0)
+                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6 col-sm-6 col-xs-12 red_table">
+                                                <div className="link minus">MINUS ACCOUNT (Lena He)</div>
+                                                <div className="main_gre-red">
+                                                    <table
+                                                        className="table table-striped jambo_table bulk_action"
+                                                        id=""
+                                                    >
+                                                        <thead>
+                                                            <tr className="headings">
+                                                                <th className="">Name</th>
+                                                                <th className="">Account</th>
+                                                                <th className="">Chips</th>
+                                                            </tr>
+                                                        </thead>
+                                                        {totalAllUsersAmount >= 0 && parentAmount < 0 ?
+                                                            <tbody id="lenaHai">
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+                                                                    let str = item.UserN;
+                                                                    let newStr = str.split(" ");
+                                                                    let id = newStr[newStr.length - 1];
+                                                                    return (
+                                                                        <tr key={index}>
+                                                                            <td className=" ">{item.UserN}</td>
+                                                                            <td className="acco">
+                                                                                <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                    {item.UserN}
+                                                                                </a>
+                                                                            </td>
+                                                                            <td className=" ">{item.amount}</td>
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                                <tr>
+                                                                    <td>Total</td>
+                                                                    <td />
+                                                                    <td>
+                                                                        {calcUsers.length > 0 && calcUsers
+                                                                            .filter(item => item.amount < 0)
+                                                                            .reduce((total, item) => total + item.amount, 0)}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                            :
+                                                            <tbody id="lenaHai">
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
 
 
 
-                                                        return <tr key={index}>
-                                                            <td className=" ">{item.UserN}</td>
-                                                            <td className="acco">
-                                                                <a onClick={(e) => { e.preventDefault(); filterParentChild(id) }}>
-                                                                    {item.UserN}
-                                                                </a>
-                                                            </td>
-                                                            <td className=" ">{item.amount}</td>
-                                                        </tr>
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
 
-                                                    })}
-
-
-                                                    <tr>
-                                                        <td className=" ">Parent</td>
-                                                        <td className="acco">
-                                                            <a>Parent A/C</a>
-                                                        </td>
-                                                        <td className=" ">0</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td className=" ">own</td>
-                                                        <td className="acco">
-                                                            <a>Own</a>
-                                                        </td>
-                                                        <td className=" ">{totalAllUsersAmount}</td>
-                                                    </tr>
-                                                </tbody> : <tbody id="lenaHai">
-                                                    {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+                                                                })}
 
 
-                                                        let str = item.UserN
-                                                        let newStr = str.split(" ")
-                                                        let id = newStr[newStr.length - 1]
+                                                            </tbody>}
+
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td>Total</td>
+                                                                <td />
+                                                                <td id="lenaTotal">{calcUsers.length > 0 && calcUsers
+                                                                    .filter(item => item.amount < 0)
+                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </>
+
+                                        :
+                                        <>
+
+                                            <div className="col-md-6 col-sm-6 col-xs-12 green_table">
+                                                <div className="link">PLUS ACCOUNT (Dena He)</div>
+                                                <div className="main_gre-red">
+                                                    <table
+                                                        className="table table-striped jambo_table bulk_action"
+                                                        id=""
+                                                    >
+                                                        <thead>
+                                                            <tr className="headings">
+                                                                <th className="">Name</th>
+                                                                <th className="">Account</th>
+                                                                <th className="">Chips</th>
+                                                            </tr>
+                                                        </thead>
+                                                        {totalAllUsersAmount < 0 ?
+                                                            <tbody id="denaHai">
+
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
+                                                                    console.log("ID : " + id)
+
+
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
+
+                                                                })}
+
+                                                                <tr >
+                                                                    <td className=" ">Parent</td>
+                                                                    <td className="acco">
+                                                                        <a>{parent}</a>
+                                                                    </td>
+                                                                    {/* <td className=" ">{String(parentAmount).replace(/^-/, '')}</td> */}
+                                                                    <td className=" ">{parentAmount}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td className=" ">own</td>
+                                                                    <td className="acco">
+                                                                        <a>Own</a>
+                                                                    </td>
+                                                                    <td className=" ">{String(totalAllUsersAmount).replace(/^-/, '')}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                            :
+                                                            <tbody id="denaHai">
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
+                                                                    console.log("ID : " + id)
+
+
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
+
+                                                                })}
+                                                            </tbody>}
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td>Total</td>
+                                                                <td />
+                                                                <td id="denaTotal">{calcUsers.length > 0 && calcUsers
+                                                                    .filter(item => item.amount >= 0)
+                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div className="col-md-6 col-sm-6 col-xs-12 red_table">
+                                                <div className="link minus">MINUS ACCOUNT (Lena He)</div>
+                                                <div className="main_gre-red">
+                                                    <table
+                                                        className="table table-striped jambo_table bulk_action"
+                                                        id=""
+                                                    >
+                                                        <thead>
+                                                            <tr className="headings">
+                                                                <th className="">Name</th>
+                                                                <th className="">Account</th>
+                                                                <th className="">Chips</th>
+                                                            </tr>
+                                                        </thead>
+                                                        {totalAllUsersAmount >= 0 ?
+                                                            <tbody id="lenaHai">
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
 
 
 
-                                                        return <tr key={index}>
-                                                            <td className=" ">{item.UserN}</td>
-                                                            <td className="acco">
-                                                                <a onClick={(e) => { e.preventDefault(); filterParentChild(id) }}>
-                                                                    {item.UserN}
-                                                                </a>
-                                                            </td>
-                                                            <td className=" ">{item.amount}</td>
-                                                        </tr>
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
 
-                                                    })}
+                                                                })}
 
 
-                                                </tbody>}
+                                                                <tr>
+                                                                    <td className=" ">Parent</td>
+                                                                    <td className="acco">
+                                                                        <a>{parent}</a>
+                                                                    </td>
+                                                                    <td className=" ">{parentAmount}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td className=" ">own</td>
+                                                                    <td className="acco">
+                                                                        <a>Own</a>
+                                                                    </td>
+                                                                    <td className=" ">{totalAllUsersAmount * (-1)}</td>
+                                                                </tr>
+                                                            </tbody> : <tbody id="lenaHai">
+                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
 
-                                                <tfoot>
-                                                    <tr>
-                                                        <td>Total</td>
-                                                        <td />
-                                                        <td id="lenaTotal">{totalAllUsersAmount}</td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
+
+                                                                    let str = item.UserN
+                                                                    let newStr = str.split(" ")
+                                                                    let id = newStr[newStr.length - 1]
+
+
+
+                                                                    return <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
+
+                                                                })}
+
+
+                                                            </tbody>}
+
+                                                        <tfoot>
+                                                            <tr>
+                                                                <td>Total</td>
+                                                                <td />
+                                                                <td id="lenaTotal">{calcUsers.length > 0 && calcUsers
+                                                                    .filter(item => item.amount < 0)
+                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        </>
+                                    }
+
+
                                 </div>
                             </div>
                         </div>
@@ -598,7 +1000,7 @@ function ShowBetCr() {
                                 <table
                                     className="table table-bordered table-dark table_new_design jambo_table bulk_action dataTable"
                                     id="datatables"
-                                >
+                                > 
                                     <thead>
                                         <tr className="headings">
                                             <th className="darkpurplecolor">S.No.</th>
@@ -628,7 +1030,7 @@ function ShowBetCr() {
 
                                             <tr className={item.Type == "back" ? "content_user_table mark-back odd" : "content_user_table mark-lay odd"} key={item.id}>
                                                 <td>{(currentPage - 1) * perPage + index + 1}</td>
-                                                <td>{item.UserN}</td>
+                                                <td>{item.UserN} <span className='roleID' style={{ display: 'none' }}>{item.UserRoleId}</span></td>
                                                 <td>{item.TechAdminN} <span className='roleID' style={{ display: 'none' }}>{item.TechAdminRoleId}</span></td>
                                                 <td>{item.SuperAdminN} <span className='roleID' style={{ display: 'none' }}>{item.SuperAdminRoleId}</span></td>
                                                 <td>{item.SubAdminN} <span className='roleID' style={{ display: 'none' }}>{item.SubAdminRoleId}</span></td>

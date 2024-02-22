@@ -19,6 +19,7 @@ import AccountStatement from './Components/AccountStatement';
 import MatchDetailList from './Components/MatchDetailList';
 import BetHistory from './Components/BetHistory';
 import ShowBetCr from './Components/ShowBetCr';
+import ChipSummary from './Components/ChipSummary';
 
 function App() {
 
@@ -74,6 +75,7 @@ function App() {
         <Route path='/matchDetailList/:eventId' element={isLoggedIn ? <MatchDetailList /> : <Login />} />
         <Route path='/betHistory' element={isLoggedIn ? <BetHistory /> : <Login />} />
         <Route path='/ShowBetCr/:eid/:marketNumber/:marketSId' element={isLoggedIn ? <ShowBetCr /> : <Login />} />
+        <Route path='/chipSummary' element={isLoggedIn ? <ChipSummary /> : <Login />} />
 
 
       </Routes>

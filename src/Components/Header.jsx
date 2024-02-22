@@ -264,7 +264,7 @@ useEffect(()=>{
                         <a href="/statementByUser">Account Statement </a>
                       </li>
                       <li>
-                        <a href="/chipsummary/dkdk90">Chip Summary </a>
+                        <a href="/chipSummary">Chip Summary </a>
                       </li>
                       <li>
                         <a href="/clientpl/dkdk90/10/1/0/0">Client P L</a>
@@ -506,7 +506,7 @@ useEffect(()=>{
                   <a href="/statementByUser">Account Statement </a>
                 </li>
                 <li>
-                  <a href="/chipsummary/dkdk90">Chip Summary </a>
+                  <a href="/chipSummary">Chip Summary </a>
                 </li>
                 <li>
                   <a href="/clientpl/dkdk90/10/1/0/0">Client P L</a>
