@@ -4,10 +4,25 @@ import Footer from './Footer'
 import Cookies from 'js-cookie'
 import Moment from 'moment'
 import { useNavigate } from 'react-router-dom'
+// import { useUser } from './UserContext'
+import { useLocation } from 'react-router-dom'
 
 function AccountStatement() {
 
-    const userId = Cookies.get('id');
+    // const { contextUserId } = useUser()
+    const location  = useLocation();
+    const ChilduserId = location.state?.userId; 
+
+    console.log("Location State : ", location)
+    console.log("User context Id is : ", ChilduserId)
+    let userId;
+
+    if(ChilduserId == null || undefined){
+        userId = Cookies.get('id');
+    } else {
+        userId = ChilduserId;
+    }
+    
     const userName = Cookies.get('userName');
 
     const navigate = useNavigate();
@@ -22,6 +37,11 @@ function AccountStatement() {
     const [alldata, setAllData] = useState([]);
     const [matchOdds, setMatchOdds] = useState([]);
     const [bookMaker, setBookMaker] = useState([]);
+    const [settlementData, setSettlementData] = useState([])
+    const [fromDate, setFromDate] = useState(getDefaultFromDate());
+    const [toDate, setToDate] = useState(getDefaultToDate());
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterClicked, setFilterClicked] = useState(false);
 
 
 
@@ -35,6 +55,15 @@ function AccountStatement() {
         document.getElementById('Statement').click();
     }, [userId]);
 
+
+    useEffect(() => {
+
+        if (filterClicked) {
+            // fetchMyBalanceApi();
+            filterBetUsers()
+            setFilterClicked(false); // Reset the filterClicked state
+        }
+    }, [filterClicked]);
 
 
 
@@ -61,21 +90,33 @@ function AccountStatement() {
             const fetched = await fetch(`http://localhost:5000/usersChild/${userId}`);
             const response = await fetched.json();
             console.log("Get userChild matches data: " + JSON.stringify(response.Alldata));
+
+            const fetchSettlementUser = await fetch(`http://localhost:5000/getSettlement/${userId}`)
+
+            const Ressetttlement = await fetchSettlementUser.json();
+
+            // console.log("Get settlement data: " + JSON.stringify(Ressetttlement.data));
             // setAllData(response.Alldata)
             // console.log("Get userChild Account Statement matches data: " + JSON.stringify(response.AccStatement));
 
-            if (Array.isArray(response.AccStatement) && Array.isArray(response.Alldata)) {
+            if (Array.isArray(response.AccStatement) && Array.isArray(response.Alldata) && Array.isArray(Ressetttlement.data)) {
 
                 console.log("Get userChild Account Statement matches data: " + JSON.stringify(response.AccStatement[0]));
                 console.log("Response data before filter unique : " + response.Alldata.length)
+                console.log("Get settlement data: " + JSON.stringify(Ressetttlement.data));
+
+
+                const filterSettlement = Ressetttlement.data.filter(item => item.ParentId == userId)
+
+                console.log("settlement data by parent Id : ", filterSettlement)
+                const addSourceInSettlement = filterSettlement.map(item => ({ ...item, source: 'settlement' }))
+                console.log("settlement data by parent Id with source : ", addSourceInSettlement)
+
+                setSettlementData(addSourceInSettlement)
 
 
 
                 // Unique data for Match Odds 
-
-
-                // Use a Map to keep track of unique eventNames
-                // Use a Map to keep track of unique eventIds
                 const uniqueEventId = new Map();
                 const eventIdToResultAmount = new Map(); // To store EventId to corresponding ResultAmount
 
@@ -111,9 +152,6 @@ function AccountStatement() {
 
 
                 // Unique Data for BookMaker
-
-
-                // Use a Map to keep track of unique eventIds for BookMaker market
                 const uniqueBookMakerEventId = new Map();
                 const bookMakerEventIdToResultAmount = new Map(); // To store EventId to corresponding ResultAmount for BookMaker market
 
@@ -150,7 +188,7 @@ function AccountStatement() {
                 // Unique Data for Fancy
 
 
-                const beforFilterFancy =  response.Alldata.filter(item => item.Market == "Fancy");
+                const beforFilterFancy = response.Alldata.filter(item => item.Market == "Fancy");
 
                 console.log("before filter fancy length : " + beforFilterFancy.length)
 
@@ -209,18 +247,32 @@ function AccountStatement() {
 
                 // setAllData(combinedFilteredUniqueData)
 
-                const mergedData = [...response.AccStatement[0].map(item => ({ ...item, source: 'accountstatement' })), ...combinedFilteredUniqueData.map(item => ({ ...item, source: 'bets' })),];
+                const mergedData = [...response.AccStatement[0].map(item => ({ ...item, source: 'accountstatement' })), ...combinedFilteredUniqueData.map(item => ({ ...item, source: 'bets' })), ...addSourceInSettlement];
 
                 // Sort the data by the ISO date string
-                mergedData.sort((a, b) => new Date(b.Date || b.SettleTime) - new Date(a.Date || a.SettleTime));
+                mergedData.sort((a, b) => new Date(b.Date || b.SettleTime || b.SettledDate) - new Date(a.Date || a.SettleTime || a.SettledDate));
+                console.log("Mereged data before by date : ",mergedData)
+
+                const filteredDataByDate = mergedData.filter(item =>
+
+                    new Date(item.Date || item.SettleTime|| item.SettledDate) >= new Date(getDefaultFromDate) &&
+                    new Date(item.Date || item.SettleTime|| item.SettledDate) <= new Date(toDate).setHours(23, 59, 59, 999)
+                );
+
+                console.log("Mereged data after by date : ",filteredDataByDate)
+                
 
                 setCombinedData(mergedData);
-                setData(mergedData);
+
+
+                setData(filteredDataByDate);
 
                 const accountStatementData = mergedData.filter(item => item.source === 'accountstatement');
                 // (item.Date || item.SettleTime)
 
                 const betsData = mergedData.filter(item => item.source === 'bets');
+                console.log("bets Data length : " + betsData.length);
+
 
                 // // Sort the data by the ISO date string
                 // accountStatementData.sort((a, b) => new Date(b.Date || b.SettleTime) - new Date(a.Date || a.SettleTime));
@@ -265,6 +317,39 @@ function AccountStatement() {
         }
     }
 
+    const filterBetUsers = () => {
+
+
+        if (data.length > 0 && Array.isArray(data)) {
+
+            console.log("All state data after clicks on filter ", alldata)
+
+            const filteredDataByDate = data.filter(item =>
+
+                new Date(item.Date || item.SettleTime || item.SettledDate) >= new Date(fromDate) &&
+                new Date(item.Date || item.SettleTime || item.SettledDate) <= new Date(toDate).setHours(23, 59, 59, 999)
+            );
+
+            console.log("From Date : " + fromDate)
+            console.log("To Date : " + toDate)
+            // Sort the data by the ISO date string
+            filteredDataByDate.sort((a, b) => new Date(b.Date || b.SettleTime || b.SettledDate) - new Date(a.Date || a.SettleTime || a.SettledDate));
+            console.log("Formatted and Sorted Bet History data:", filteredDataByDate);
+            // // Sort the data by the ISO date string
+            // formattedData.sort((a, b) => new Date(a.result.data.placeTime) - new Date(b.result.data.placeTime));
+
+            // console.log("Formatted and Sorted Bet History data:", formattedData);
+            console.log('filtered data length : ', filteredDataByDate.length)
+
+            // setUser(formattedUserName)
+            setData(filteredDataByDate);
+
+
+        } else {
+            console.error('Invalid data format:', data);
+        }
+    }
+
 
 
     const getDisplayedContent = (item) => {
@@ -272,10 +357,15 @@ function AccountStatement() {
             return item.ResultAmount > 0
                 ? `Loss from ${userName} by ${item.EventName} ${item.Market == "Fancy" ? item.Market + " " + item.Event : item.Market}`
                 : `Profit to ${userName} by ${item.EventName} ${item.Market == "Fancy" ? item.Market + " " + item.Event : item.Market}`;
-        } else {
+        } else if (item.source === 'accountstatement') {
             return item.Deposit > 0
                 ? `Chip Withdraw from ${item.ToUserName} by ${item.UserName}  - Done By - ${item.ByUserName}`
                 : `Chip Credited to ${item.ToUserName} by ${item.UserName}  - Done By - ${item.ByUserName}`
+        } else if (item.source == 'settlement') {
+            return item.SettlementType === "Liya Hai"
+                ? `Cash Recieved from ${item.ChildName}`
+                : `Cash Paid to ${item.ChildName}`
+
         }
     };
     const getCheckBox = (item) => {
@@ -287,13 +377,57 @@ function AccountStatement() {
         }
         if (item == "FreeChips") {
             setData(accData)
-            console.log("Length of combined data : " + accData.length)
+            console.log("Accounts data : " + JSON.stringify(accData))
+            console.log("Length of Accounts data : " + accData.length)
+
         }
         if (item == "PL") {
             setData(alldata)
-            console.log("Length of combined data : " + alldata.length)
+            console.log("Profit Loss bets alldata data : " + JSON.stringify(alldata))
+            console.log("Length of Profit Loss alldata data : " + alldata.length)
+        }
+        if (item == "Settlement") {
+            setData(settlementData)
+            console.log("Length of settlement data : " + settlementData.length)
         }
     }
+
+
+
+    function getDefaultFromDate() {
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        console.log("Default From Date : " + twoDaysAgo)
+        return twoDaysAgo.toISOString().split('T')[0];
+    }
+
+    function getDefaultToDate() {
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // Set the time to 23:59:59.999
+        console.log("Today date : " + today)
+        return today.toISOString().split('T')[0];
+    }
+
+
+    const handleFromDateChange = (e) => {
+        console.log(" From Date : " + e.target.value)
+        setFromDate(e.target.value);
+    };
+
+    const handleToDateChange = (e) => {
+        console.log(" To Date : " + e.target.value)
+        setToDate(e.target.value);
+    };
+
+
+    const handleFilter = () => {
+        // fetchMyBalanceApi(); // Trigger refetching with the updated filter criteria
+        // fetchMatched()
+        filterBetUsers()
+        setFilterClicked(true);
+    };
+
+
 
     // No empty dependency array, effect will run continuously
     const handleEvent = (eventId) => {
@@ -301,19 +435,6 @@ function AccountStatement() {
 
         console.log("Clicked Event Id : " + eventId)
     }
-
-
-    // const fetchMatched = async () =>{
-    //     try{
-
-    //         const fetched = await fetch(`http://localhost:5000/usersChild/${userId}`)
-    //         const response = await fetched.json();
-    //         console.log("Get userChild matches data : "+ JSON.stringify(response))
-    //         setData(response.MatchOdds)
-    //     } catch(err){
-    //         console.error("Error in fetching Userschild Api : "+err)
-    //     }
-    // }
 
 
 
@@ -420,7 +541,7 @@ function AccountStatement() {
                                                 <span>Settlement</span>
                                             </label>
                                         </div>
-                                        <div className="form-group">
+                                        {/* <div className="form-group">
                                             <input
                                                 name="fltrselct"
                                                 defaultValue={2}
@@ -431,7 +552,7 @@ function AccountStatement() {
                                             <label htmlFor="PL2">
                                                 <span>Profit and Loss</span>
                                             </label>
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="block_2">
                                         <input
@@ -442,6 +563,8 @@ function AccountStatement() {
                                             className="form-control"
                                             placeholder="From Date"
                                             autoComplete="off"
+                                            onChange={handleFromDateChange}
+                                            value={fromDate}
                                         />
                                     </div>
                                     <div className="block_2">
@@ -453,6 +576,8 @@ function AccountStatement() {
                                             className="form-control"
                                             placeholder="To Date"
                                             autoComplete="off"
+                                            onChange={handleToDateChange}
+                                            value={toDate}
                                         />
                                     </div>
                                     <div className="block_2">
@@ -470,7 +595,7 @@ function AccountStatement() {
                                             type="button"
                                             name="submit"
                                             id="submit_form_button"
-                                            onclick="filterData()"
+                                            onClick={handleFilter}
                                             className="blue_button"
                                             data-attr="submit"
                                         >
@@ -505,7 +630,7 @@ function AccountStatement() {
                                             {data.length > 0 && data.map((item, index) => (
                                                 <tr key={item.id}>
                                                     <td>{index + 1}</td>
-                                                    <td className=" ">{Moment(new Date(item.Date || item.SettleTime)).format('DD/MM/YYYY hh:mm:ss a')}</td>
+                                                    <td className=" ">{Moment(new Date(item.Date || item.SettleTime || item.SettledDate)).format('DD/MM/YYYY hh:mm:ss a')}</td>
                                                     <td className=" " >
                                                         {item.source === 'bets' && (
                                                             <a onClick={(e) => {
@@ -524,9 +649,9 @@ function AccountStatement() {
                                                                 0 :
                                                                 (item.ResultAmount !== undefined ?
                                                                     item.ResultAmount.toString().replace(/^(-)/, '') :
-                                                                    ''))}
+                                                                    (item.SettlementType === "Diya Hai" ? item.Amount : 0)))}
                                                     </td>
-                                                    <td className="red text-right">{item.source === 'accountstatement' ? item.Withdraw : item.ResultAmount > 0 ? item.ResultAmount : 0}</td>
+                                                    <td className="red text-right">{item.source === 'accountstatement' ? item.Withdraw : item.ResultAmount > 0 ? item.ResultAmount : item.SettlementType === "Liya Hai" ? item.Amount * (-1) : 0}</td>
                                                     <td className="green text-right">0</td>
                                                     <td className="green text-right">{item.Balance}</td>
                                                     <td>-</td>

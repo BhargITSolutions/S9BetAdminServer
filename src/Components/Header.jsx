@@ -289,7 +289,7 @@ useEffect(()=>{
                         </a>
                       </li>
                       <li>
-                        <a href="/downlineprofitloss/dkdk90/10/1/0/0/All">
+                        <a href="/downlineProfitLoss">
                           Profit &amp; Loss
                         </a>
                       </li>
@@ -536,7 +536,7 @@ useEffect(()=>{
                   </a>
                 </li>
                 <li>
-                  <a href="/downlineprofitloss/dkdk90/10/1/0/0/All">
+                  <a href="/downlineProfitLoss">
                     Profit &amp; Loss
                   </a>
                 </li>
@@ -602,7 +602,7 @@ useEffect(()=>{
                   </a>
                 </li>
                 <li id="blockMarketH">
-                  <a href="#">
+                  <a href="/deleteBetHistory">
                     <i aria-hidden="true" /> Delete Bet History
                   </a>
                 </li>

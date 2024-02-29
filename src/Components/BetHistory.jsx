@@ -9,6 +9,7 @@ function BetHistory() {
 
     const userId = Cookies.get('id')
     const roleId = Cookies.get('roleId')
+    const LoggedInuserName = Cookies.get('userName').replace(/['"]+/g, '');
 
     const [data, setData] = useState([])
     const [betUsers, setBetUsers] = useState([])
@@ -191,11 +192,11 @@ function BetHistory() {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ betId: id, value }),
+                        body: JSON.stringify({ betId: id, value, ParentUser: LoggedInuserName }),
                     });
 
                     const responseData = await response.json();
-                    console.log("response from api : " + responseData)
+                    console.log("response from api : " + JSON.stringify(responseData))
                     if (responseData.isSuccess == true) {
 
                         Swal.fire({
@@ -451,7 +452,7 @@ function BetHistory() {
                                                 <td>{item.OddsRequest}</td>
                                                 <td className="">{item.AmountStake}</td>
                                                 <td>{Moment(new Date(item.MatchedTime)).tz("Asia/Calcutta").format('ddd MMM DD hh:mm:ss z YYYY')}</td>
-                                                <td className={item.ResultAmount < 0 ? 'red' : 'green'}>{item.ResultAmount}</td>
+                                                <td className={item.ResultAmount < 0 ? 'green' : 'red'}>{item.ResultAmount * (-1)}</td>
                                                 <td className="green">{item.Profit}</td>
                                                 <td className="red">{item.Liability}</td>
                                                 <td>{item.Type}</td>

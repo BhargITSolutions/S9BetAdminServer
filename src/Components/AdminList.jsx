@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Moment from 'moment';
 import Cookies from 'js-cookie'
 import Header from './Header'
 import Footer from './Footer'
+// import { useUser } from './UserContext';
+// import { navigat } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom';
 
 function AdminList() {
 
-    const navigate = useNavigate();
+    // const { setUserId } = useUser();
+    // const navigate = useHistory();
+    const navigateTo = useNavigate();
     const { Id } = useParams();
     const { roleId } = useParams();
     const roleIdNumber = parseInt(roleId, 10) + 1;
@@ -42,6 +47,10 @@ function AdminList() {
     const [dwUserId, setDWUserId] = useState(null)
     const [dwParentId, setDWParentId] = useState(null)
     const [dwUserName, setDWUserName] = useState('')
+    const [changePassUser, setChangePassUser] = useState('')
+    const [newPassword, setNewPassword] = useState('');
+    const [retypePassword, setRetypePassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
 
 
     useEffect(() => {
@@ -235,6 +244,7 @@ function AdminList() {
         try {
             const fetched = await fetch(`http://localhost:5000/depositWithdraw/${userId}/${parentId}`);
             const response = await fetched.json();
+            console.log("Get depositWithdraw Api : " + JSON.stringify(response.data));
             console.log("Get depositWithdraw Api : " + JSON.stringify(response.data[1].ResultAmountU));
 
 
@@ -245,7 +255,6 @@ function AdminList() {
             console.error("Error fetching Users api " + error);
         }
     };
-
 
     const calWithdraw = () => {
 
@@ -995,8 +1004,9 @@ function AdminList() {
                             body: JSON.stringify(selectedUserData),
                         });
 
-                        const responseData = await response.text();
-                        if (response.ok) {
+                        const responseData = await response.json();
+                        console.log("response Data : ", responseData)
+                        if (responseData.update == 'Ok') {
                             console.log("Response selected users are : " + responseData); // Log response if needed
                             // Handle successful response from backend
                             Swal.fire({
@@ -1022,8 +1032,8 @@ function AdminList() {
                             // Handle error response from backend
                             console.error('Error updating user:', response.statusText);
 
-                            const responseData = await response.text();
-                            console.log("Response selected users are : " + responseData); // Log response if needed
+                            // const responseData = await response.text();
+                            // console.log("Response selected users are : " + responseData); // Log response if needed
                             // Handle successful response from backend
                             Swal.fire({
                                 position: "top-end",
@@ -1049,7 +1059,7 @@ function AdminList() {
 
 
     const handleChild = (roleId, Id) => {
-        navigate(`/adminList/${roleId}/${Id}`);
+        navigateTo(`/adminList/${roleId}/${Id}`);
     }
 
     const handlePerPageChange = (e) => {
@@ -1073,6 +1083,90 @@ function AdminList() {
             setCurrentPage(1);
         } else {
             setCurrentPage(pageNumber);
+        }
+    };
+
+    // const handleStatement = (id) => {
+    //     console.log("Clicked user statement id : ", id)
+    //     // setUserId(id); // Set the user ID in the context
+    //     // Navigate to the AccountStatement component and pass the user ID as state
+    //     navigateTo({
+    //         pathname: '/statementByUser',
+    //         state: { userId: id }
+    //     });
+    // }
+
+    const changeChildPassWord = async () => {
+
+        console.log("change password UserID is : ", changePassUser)
+        try {
+            // Validate that new password and retype password match
+            if (newPassword !== retypePassword || retypePassword == '') {
+                setPasswordError('New Passwords does not match.');
+                return;
+            } else {
+                setPasswordError('');
+            }
+            console.log("New Password : " + newPassword)
+            console.log("Confirm Password : " + retypePassword)
+
+
+            const response = await fetch('http://localhost:5000/changeChildPassword', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    UserId: changePassUser,
+                    NewPassword: newPassword,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.isSuccess == true) {
+                // Password changed successfully
+                // You may want to redirect the user or show a success message
+                console.log('Password changed successfully');
+                setChangePassUser('')
+                setNewPassword('')
+                setRetypePassword('')
+                // Trigger click event to close modal
+                const close = document.getElementById('change_pass1');
+                close.setAttribute('data-dismiss', 'modal');
+                close.click();
+
+                Swal.fire({
+                    position: "top-end",
+                    icon: "Update Successful",
+                    title: "Password Change Successful",
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+
+                // Remove the data-dismiss attribute after the button click
+                close.removeAttribute('data-dismiss');
+            } else {
+                // setPasswordError(result.message);
+                setChangePassUser('')
+                setNewPassword('')
+                setRetypePassword('')
+                // Trigger click event to close modal
+                const close = document.getElementById('change_pass1');
+                close.setAttribute('data-dismiss', 'modal');
+                close.click();
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: result.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                // Remove the data-dismiss attribute after the button click
+                close.removeAttribute('data-dismiss');
+            }
+        } catch (error) {
+            console.error('Error changing password:', error);
         }
     };
 
@@ -1219,7 +1313,7 @@ function AdminList() {
                                                     <td style={{ display: roleId == 7 ? "table-cell" : "none" }}>0.00</td>
                                                     <td style={{ display: roleId != 7 ? "table-cell" : "none" }}>0.00</td>
                                                     <td className=" " style={{ display: roleId == 7 ? "table-cell" : "none" }}><a href="/expobets/1/10/bandul@" className="btn btn-success btn-xs" style={{ width: "85px" }}> 0.00</a></td>
-                                                    <td className=" ">8.00</td>
+                                                    <td className=" ">{item.ResultAmountU != null ? item.ResultAmountU : 0}</td>
                                                     <td>{item.LockUser == 0 && item.LockUserParent == 0 ? "No" : "Yes"}</td>
                                                     <td>{item.LockBetting == 0 && item.LockBettingParent == 0 ? "No" : "Yes"}</td>
                                                     <td className=" " style={{ display: roleId != 7 ? "table-cell" : "none" }}>{item.Partnership}%</td>
@@ -1280,9 +1374,10 @@ function AdminList() {
                                                                 </li>
                                                                 <li>
                                                                     {" "}
-                                                                    <a className="" href="/statementByUser/aja/2">
+                                                                    {/* <a className="" onClick={(e) => { e.preventDefault(); handleStatement(item.Id) }}>
                                                                         <span>Statement</span>{" "}
-                                                                    </a>
+                                                                    </a> */}
+                                                                    <Link to='/statementByUser' state={{ userId: item.Id }}><span>Statement</span></Link>
                                                                 </li>
                                                                 <li>
                                                                     {" "}
@@ -1291,12 +1386,13 @@ function AdminList() {
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    <a
+                                                                    {/* <a
                                                                         className=""
                                                                         href="/downlineprofitloss/aja/10/1/0/0/All"
                                                                     >
                                                                         <span>Profit Loss</span>{" "}
-                                                                    </a>
+                                                                    </a> */}
+                                                                     <Link to='/downlineProfitLoss' state={{ userId: item.Id }}><span>Profit Loss</span></Link>
                                                                 </li>
                                                                 {/* <li>
                                                                     <a
@@ -1328,9 +1424,9 @@ function AdminList() {
                                                                         className=""
                                                                         data-toggle="modal"
                                                                         data-target="#cngpwd"
-                                                                        onclick="setPasswordId('aja')"
                                                                         href=""
                                                                         title="Change Password"
+                                                                        onClick={(e) => { e.preventDefault(); setChangePassUser(item.Id) }}
                                                                     >
                                                                         <span>Change Password</span>
                                                                     </a>
@@ -1527,8 +1623,7 @@ function AdminList() {
                                 </div>
                                 <div className="modal-body">
                                     <div id="PassUserMsg">
-                                        <span id="passerror" style={{ color: "red" }} />
-                                    </div>
+                                        <span id="passerror" style={{ color: "red" }}>{passwordError}</span>                                    </div>
                                     <div className="">
                                         <form id="" method="post" autoComplete="off" style={{ paddingLeft: "5%", paddingRight: "5%" }}>
                                             <div className="col-md-12 col-sm-12 col-xs-12">
@@ -1540,6 +1635,8 @@ function AdminList() {
                                                     className="form-control"
                                                     id="newPassword"
                                                     autoComplete="off"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
                                                 />
                                             </div>
                                             <div className="col-md-12 col-sm-12 col-xs-12">
@@ -1551,14 +1648,16 @@ function AdminList() {
                                                     className="form-control"
                                                     id="confirm_password"
                                                     autoComplete="off"
+                                                    value={retypePassword}
+                                                    onChange={(e) => setRetypePassword(e.target.value)}
                                                 />
                                             </div>
                                             <div className="col-md-12 col-xs-6 modal-footer" style={{ display: 'flex' }}>
                                                 <button
                                                     type="button"
-                                                    onclick="changePassword()"
+                                                    onClick={changeChildPassWord}
                                                     className="blue_button"
-                                                    id="change_pass"
+                                                    id="change_pass1"
                                                     style={{ marginRight: "2px" }}
                                                 >
                                                     Change

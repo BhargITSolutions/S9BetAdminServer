@@ -20,6 +20,11 @@ import MatchDetailList from './Components/MatchDetailList';
 import BetHistory from './Components/BetHistory';
 import ShowBetCr from './Components/ShowBetCr';
 import ChipSummary from './Components/ChipSummary';
+import Ledger from './Components/Ledger';
+import DownlineProfitLoss from './Components/DownlineProfitLoss';
+import NetExposure from './Components/NetExposure';
+import CuttingExpo from './Components/CuttingExpo';
+import DeleteBetHistory from './Components/DeleteBetHistory';
 
 function App() {
 
@@ -76,6 +81,14 @@ function App() {
         <Route path='/betHistory' element={isLoggedIn ? <BetHistory /> : <Login />} />
         <Route path='/ShowBetCr/:eid/:marketNumber/:marketSId' element={isLoggedIn ? <ShowBetCr /> : <Login />} />
         <Route path='/chipSummary' element={isLoggedIn ? <ChipSummary /> : <Login />} />
+        <Route path='/ledger/:userId' element={isLoggedIn ? <Ledger /> : <Login />} />
+        <Route path='/downlineProfitLoss' element={isLoggedIn ? <DownlineProfitLoss /> : <Login />} />
+        <Route path='/netExposure' element={isLoggedIn ? <NetExposure /> : <Login />} />
+        <Route path='/cuttingExpo/:eid/:gameid' element={isLoggedIn ? <CuttingExpo /> : <Login />} />
+        <Route path='/deleteBetHistory' element={isLoggedIn ? <DeleteBetHistory /> : <Login />} />
+
+
+
 
 
       </Routes>

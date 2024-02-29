@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import Header from './Header'
 import Footer from './Footer'
+import { useNavigate } from 'react-router-dom';
 
 
 function Dashboard() {
 
+
+    const navigate = useNavigate();
 
     const [data, setData] = useState([])
 
@@ -23,6 +26,10 @@ function Dashboard() {
             console.error("Error fetching Inplay api " + error)
         }
 
+    }
+
+    const handleEvent = (eid, gameId) => {
+        navigate(`/cuttingExpo/${eid}/${gameId}`);
     }
 
     return (
@@ -64,10 +71,10 @@ function Dashboard() {
                                                                     item.eid === '4' && (
                                                                         <div
                                                                             className="sport_row "
-                                                                            onclick="navigate('32853015','4');"
+                                                                            onClick={(e) => { e.preventDefault(); handleEvent(item.eid, item.gameId) }}
                                                                             key={item.id} >
                                                                             <div className="sport_name">
-                                                                                <a href="/cuttingExpo/4/32853015/32853015">
+                                                                                <a href={`/cuttingExpo/${item.eid}/${item.gameId}`}>
                                                                                     {item.eventName}
                                                                                 </a>
                                                                                 <time className="desktop_time_match">

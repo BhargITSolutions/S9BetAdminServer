@@ -3,6 +3,7 @@ import Header from './Header'
 import Footer from './Footer'
 import Cookies from 'js-cookie'
 import { useNavigate, useParams } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 function CloseUser() {
 
@@ -32,7 +33,7 @@ function CloseUser() {
 
         // fetchUserChild()
 
-    }, [roleId])
+    }, [roleId]) 
 
 
     const fetchUserData = async () => {
@@ -197,8 +198,92 @@ function CloseUser() {
 
     }
 
+
     const handleChild = (roleId, Id) => {
-        navigate(`/closeUser/${roleId}/${Id}`);
+        // navigate(`/closeUser/${roleId}/${Id}`);
+
+        console.log("Role Id is : ", roleId, "User Id : ", Id)
+        let selectedUserData = {
+            userId: [Id],
+            roleId: [roleId],
+            betOption: "",
+            userOption: "",
+            closeUser: 0,
+        };
+
+        if (selectedUserData.userId != 0) {
+
+            console.log("Selected user option data : " + JSON.stringify(selectedUserData))
+            Swal.fire({
+                title: "Conformation",
+                text: "Are you sure",
+                icon: "warning",
+                confirmButtonText: "Yes",
+                showCancelButton: true,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Send selectedUserData to backend using fetch or any other method
+                        const response = await fetch('http://localhost:5000/updateUser', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(selectedUserData),
+                        });
+
+                        // const responseData = await response.text();
+                        const responseData = await response.json();
+
+                        console.log("Response data : ", responseData)
+                        if (responseData.update == 'Ok') {
+
+                            console.log("Response message after click : ", responseData.message)
+
+                            console.log("Response selected users are : " + JSON.stringify(responseData)); // Log response if needed
+                            // Handle successful response from backend
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "Update Successful",
+                                title: "Update Successful",
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+
+
+                            fetchUserData()
+                            // // Deselect checkboxes
+                            // const checkboxes = document.querySelectorAll('.select-users');
+                            // checkboxes.forEach(checkbox => {
+                            //     checkbox.checked = false;
+                            // });
+                            // // Reset selected option
+                            // const userActionSelect = document.getElementById('useraction');
+                            // userActionSelect.value = -1;
+
+                        } else {
+                            // Handle error response from backend
+                            console.error('Error updating user:', response.statusText);
+
+                            // const responseData = await response.text();
+                            // console.log("Response selected users are : " + responseData); // Log response if needed
+                            // Handle successful response from backend
+                            Swal.fire({
+                                position: "top-end",
+                                icon: "error",
+                                title: responseData.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    } catch (error) {
+                        console.error('Error updating user:', error);
+                    }
+                }
+            });
+
+
+        }
     }
 
 
@@ -334,8 +419,8 @@ function CloseUser() {
                                                             </td>
                                                             {/* <td>4bets.in</td> */}
                                                             <td>{item.FullName}</td>
-                                                            <td>{item.ParentId}</td>
-                                                            <td className=" ">0</td>
+                                                            <td>{item.ParentName}</td>
+                                                            <td className=" ">{item.ResultAmountU != null ? item.ResultAmountU : 0}</td>
                                                             <td className="last">
                                                                 <div className="">
                                                                     <a
@@ -393,7 +478,7 @@ function CloseUser() {
                                                                     <a
                                                                         className="btn btn-primary btn-xs"
                                                                         title="Open Account"
-                                                                        onclick="openAccount('655987f34c06139d84eea50b','3')"
+                                                                        onClick={(e) => { e.preventDefault(); handleChild(item.RoleId, item.Id) }}
                                                                     >
                                                                         {" "}
                                                                         <span> O </span>{" "}
