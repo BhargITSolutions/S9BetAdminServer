@@ -31,6 +31,28 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    const headerNoticeData = async () => {
+        try {
+            const api = await fetch(`https://api.s2bet.in/api/getMasterData`);
+            const apiData = await api.json();
+            const faviconUrl = apiData[0].FavIcon;
+            console.log("Favicon URL is : ", faviconUrl);
+            
+            // Update favicon
+            const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            link.type = 'image/x-icon';
+            link.rel = 'icon';
+            link.href = faviconUrl;
+            document.getElementsByTagName('head')[0].appendChild(link);
+        } catch (error) {
+            console.error('Error fetching favicon URL:', error);
+        }
+    };
+
+    headerNoticeData();
+}, []);
+
+  useEffect(() => {
     // Check if user information is present in session storage
     const userName = Cookies.get('userName');
     const userId = Cookies.get('id');

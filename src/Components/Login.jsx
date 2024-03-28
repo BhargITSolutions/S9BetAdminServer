@@ -19,27 +19,27 @@ function Login() {
         navigate('/dashboard')
         // return redirect('/dashboard');
     };
-    useEffect(()=>{
+    useEffect(() => {
         fetchLoc()
     }, [geoLocationn])
-const fetchLoc = async () =>{
+    const fetchLoc = async () => {
 
-     // Fetch user's IP address from an external service
-     const responseIP = await fetch("https://api.ipify.org/?format=json");
-     const resultIP = await responseIP.json();
-     const userIP = resultIP.ip;
-     console.log("USER IP IS : "+ userIP)
-     setuserIP(userIP)
+        // Fetch user's IP address from an external service
+        const responseIP = await fetch("https://api.ipify.org/?format=json");
+        const resultIP = await responseIP.json();
+        const userIP = resultIP.ip;
+        console.log("USER IP IS : " + userIP)
+        setuserIP(userIP)
 
-     const geo = axios.get (`http://ip-api.com/json/${userIP}`).then((response)=> {
-        console.log("Geo location : "+JSON.stringify(response.data))
-        const locationSend = `${response.data.city}/${response.data.regionName}/${response.data.country}/${response.data.zip}`;
+        const geo = axios.get(`https://freeipapi.com/api/json/${userIP}`).then((response) => {
+            console.log("Geo location : " + JSON.stringify(response.data))
+            const locationSend = `${response.data.cityName}/${response.data.regionName}/${response.data.countryName}/${response.data.zipCode}`;
 
-        console.log("Geo location : "+JSON.stringify(locationSend));
-        setGeoLocation(locationSend)
+            console.log("Geo location : " + JSON.stringify(locationSend));
+            setGeoLocation(locationSend)
 
-     })
-     console.log("GEO fucntion : "+geo)
+        })
+        console.log("GEO fucntion : " + geo)
     }
 
 
@@ -47,48 +47,48 @@ const fetchLoc = async () =>{
         event.preventDefault();
         // Set loading state to true
         setIsLoading(true);
-      
+
         try {
-          
-          // Send login request with username, password, and userIP
-          const response = await fetch('http://localhost:5000/login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: username, password, userIP, geoLocationn }),
-          });
-      
-          if (response.ok) {
-            const responseData = await response.json();
 
-            if(responseData.data.roleId < 8){
+            // Send login request with username, password, and userIP
+            const response = await fetch('https://api.s2bet.in/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: username, password, userIP, geoLocationn }),
+            });
 
-                console.log("Response is : " + JSON.stringify(responseData));
-          
-                // Cookies handle
-                Cookies.set('userName', JSON.stringify(responseData.data.UserName));
-                Cookies.set('id', responseData.data.Id);
-                Cookies.set('fullName', responseData.data.FullName);
-                Cookies.set('roleId', responseData.data.roleId);
-                
-                // Successful login, handle accordingly
-                handleRoute();
-                
+            if (response.ok) {
+                const responseData = await response.json();
+
+                if (responseData.data.roleId < 8) {
+
+                    console.log("Response is : " + JSON.stringify(responseData));
+
+                    // Cookies handle
+                    Cookies.set('userName', JSON.stringify(responseData.data.UserName));
+                    Cookies.set('id', responseData.data.Id);
+                    Cookies.set('fullName', responseData.data.FullName);
+                    Cookies.set('roleId', responseData.data.roleId);
+
+                    // Successful login, handle accordingly
+                    handleRoute();
+
+                } else {
+                    setisError('You are not authorized')
+                }
             } else {
-                setisError('You are not authorized')
+                handleError();
+                console.error('Login failed');
             }
-          } else {
-            handleError();
-            console.error('Login failed');
-          }
         } catch (error) {
-          console.error('Error during login:', error);
+            console.error('Error during login:', error);
         } finally {
-          // Set loading state back to false after the request is completed
-          setIsLoading(false);
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
-      };
+    };
 
     const handleError = () => {
         setisError('Invalid Login Id or Password');

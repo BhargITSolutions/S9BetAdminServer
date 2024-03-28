@@ -8,6 +8,7 @@ function LoginReport() {
 
     const { Id } = useParams();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState([])
     const [fromDate, setFromDate] = useState(getDefaultFromDate());
     const [toDate, setToDate] = useState(getDefaultToDate());
@@ -40,7 +41,7 @@ function LoginReport() {
         fetchLoginReport(); // Trigger refetching with the updated filter criteria
         // setCurrentPage(1);
         // setFilterClicked(true);
-      };
+    };
 
     useEffect(() => {
         fetchLoginReport();
@@ -48,8 +49,9 @@ function LoginReport() {
 
 
     const fetchLoginReport = async () => {
+        setIsLoading(true)
         try {
-            const fetched = await fetch(`http://localhost:5000/loginReport/${Id}`);
+            const fetched = await fetch(`https://api.s2bet.in/loginReport/${Id}`);
             const response = await fetched.json();
             console.log("Login Report Data: ", response.data);
             // setData(response.data);
@@ -83,6 +85,9 @@ function LoginReport() {
             }
         } catch (error) {
             console.error("Error fetching Login Report API: ", error);
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
 
     }
@@ -90,106 +95,108 @@ function LoginReport() {
     return (
         <>
 
-            <div className="nav-md">
-                <div className="container body">
-                    <Header />
-                    <div className="right_col" role="main" style={{ minHeight: 599 }}>
-                        <div className="loader" style={{ display: "none" }} />
-                        <div className="">
-                            <div className="col-md-12">
-                                <div className="title_new_at">Login report</div>
-                            </div>
-                            <div className="block_2">
-                                <input
-                                    type="date"
-                                    name="fdate"
-                                    id="fdate"
-                                    className="form-control"
-                                    placeholder="From Date"
-                                    autoComplete="off"
-                                    onChange={handleFromDateChange}
-                                    value={fromDate}
-                                />
-                            </div>
-                            <div className="block_2">
-                                <input
-                                    type="date"
-                                    name="tdate"
-                                    id="tdate"
-                                    className="form-control"
-                                    placeholder="To Date"
-                                    autoComplete="off"
-                                    onChange={handleToDateChange}
-                                    value={toDate}
-                                />
-                            </div>
-                            <div className="block_2 buttonacount">
-                                <button
-                                    type="button"
-                                    name="submit"
-                                    id="submit_form_button"
-                                    onClick={handleFilter}
-                                    className="blue_button"
-                                    data-attr="submit"
-                                >
-                                    Filter
-                                </button>
-                                {/* <a  class="red_button">Clear</a> */}
-                            </div>
-                            <div className="col-md-12 col-sm-12 col-xs-12">
-                                <div className="tabel_content">
-                                    <div className="table-responsive sports-tabel" id="contentreplace">
-                                        <table className="table tabelcolor tabelborder">
-                                            <thead>
+            {isLoading && <div className="spinner" id="loader-1" style={{ display: 'block' }}></div>}
+
+            {/* <div className="nav-md"> */}
+            <div className="container body">
+                <Header />
+                <div className="right_col" role="main" style={{ minHeight: 599 }}>
+                    <div className="loader" style={{ display: "none" }} />
+                    <div className="">
+                        <div className="col-md-12">
+                            <div className="title_new_at">Login report</div>
+                        </div>
+                        <div className="block_2">
+                            <input
+                                type="date"
+                                name="fdate"
+                                id="fdate"
+                                className="form-control"
+                                placeholder="From Date"
+                                autoComplete="off"
+                                onChange={handleFromDateChange}
+                                value={fromDate}
+                            />
+                        </div>
+                        <div className="block_2">
+                            <input
+                                type="date"
+                                name="tdate"
+                                id="tdate"
+                                className="form-control"
+                                placeholder="To Date"
+                                autoComplete="off"
+                                onChange={handleToDateChange}
+                                value={toDate}
+                            />
+                        </div>
+                        <div className="block_2 buttonacount">
+                            <button
+                                type="button"
+                                name="submit"
+                                id="submit_form_button"
+                                onClick={handleFilter}
+                                className="blue_button"
+                                data-attr="submit"
+                            >
+                                Filter
+                            </button>
+                            {/* <a  class="red_button">Clear</a> */}
+                        </div>
+                        <div className="col-md-12 col-sm-12 col-xs-12">
+                            <div className="tabel_content">
+                                <div className="table-responsive sports-tabel" id="contentreplace">
+                                    <table className="table tabelcolor tabelborder">
+                                        <thead>
+
+                                            <tr>
+                                                <th className="darkpurplecolor" scope="col">
+                                                    So.
+                                                </th>
+                                                <th className="lightgreencolor" scope="col">
+                                                    User Id
+                                                </th>
+                                                <th className="darkpurplecolor" scope="col">
+                                                    Login Time
+                                                </th>
+                                                <th className="lightgreencolor" scope="col">
+                                                    Logout Time
+                                                </th>
+                                                <th className="darkpurplecolor" scope="col">
+                                                    IP
+                                                </th>
+                                                <th className="lightgreencolor" scope="col">
+                                                    Location
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="loginReport">
+                                            {data.map((item, index) => (
 
                                                 <tr>
-                                                    <th className="darkpurplecolor" scope="col">
-                                                        So.
-                                                    </th>
-                                                    <th className="lightgreencolor" scope="col">
-                                                        User Id
-                                                    </th>
-                                                    <th className="darkpurplecolor" scope="col">
-                                                        Login Time
-                                                    </th>
-                                                    <th className="lightgreencolor" scope="col">
-                                                        Logout Time
-                                                    </th>
-                                                    <th className="darkpurplecolor" scope="col">
-                                                        IP
-                                                    </th>
-                                                    <th className="lightgreencolor" scope="col">
-                                                        Location
-                                                    </th>
+                                                    <td scope="row">{index + 1}</td>
+                                                    <td scope="row">{item.UserName}</td>
+                                                    <td scope="row">
+                                                        {item.LoginTime !== null ? Moment(item.LoginTime).format('DD/MM/YYYY hh:mm:ss') : ""}</td>
+                                                    <td scope="row">{item.LogoutTime !== null ? Moment(item.LogoutTime).format('DD/MM/YYYY hh:mm:ss') : ""}</td>
+                                                    <td scope="row">{item.IpAddress}</td>
+                                                    <td scope="row">{item.BrowserInfo}</td>
                                                 </tr>
-                                            </thead>
-                                            <tbody id="loginReport">
-                                                {data.map((item, index) => (
-
-                                                    <tr>
-                                                        <td scope="row">{index + 1}</td>
-                                                        <td scope="row">{item.UserName}</td>
-                                                        <td scope="row">
-                                                            {item.LoginTime !== null ? Moment(item.LoginTime).format('DD/MM/YYYY hh:mm:ss') : ""}</td>
-                                                        <td scope="row">{item.LogoutTime !== null ? Moment(item.LogoutTime).format('DD/MM/YYYY hh:mm:ss') : ""}</td>
-                                                        <td scope="row">{item.IpAddress}</td>
-                                                        <td scope="row">{item.BrowserInfo}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <footer>
-                        <div className="pull-right" />
-                        <div className="clearfix" />
-                    </footer>
                 </div>
-                <Footer />
+                <footer>
+                    <div className="pull-right" />
+                    <div className="clearfix" />
+                </footer>
             </div>
+            <Footer />
+            {/* </div> */}
 
         </>
     )

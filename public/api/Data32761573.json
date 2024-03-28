@@ -1,0 +1,167 @@
+{
+    "Odds": [
+        {
+            "runners": [
+                {
+                    "name": "FC Hunedoara",
+                    "selectionId": "7461",
+                    "ex": {
+                        "availableToBack": [
+                            {
+                                "price": 3.4,
+                                "size": 4299
+                            },
+                            {
+                                "price": 3.35,
+                                "size": 1034
+                            },
+                            {
+                                "price": 3.3,
+                                "size": 275
+                            }
+                        ],
+                        "availableToLay": [
+                            {
+                                "price": 3.5,
+                                "size": 3650
+                            },
+                            {
+                                "price": 3.55,
+                                "size": 90
+                            },
+                            {
+                                "price": 3.6,
+                                "size": 23909
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "FC Unirea Dej",
+                    "selectionId": "16606",
+                    "ex": {
+                        "availableToBack": [
+                            {
+                                "price": 1.4,
+                                "size": 9125
+                            },
+                            {
+                                "price": 1.39,
+                                "size": 62153
+                            },
+                            {
+                                "price": 1.38,
+                                "size": 1802
+                            }
+                        ],
+                        "availableToLay": [
+                            {
+                                "price": 1.41,
+                                "size": 10363
+                            },
+                            {
+                                "price": 1.42,
+                                "size": 2443
+                            },
+                            {
+                                "price": 1.43,
+                                "size": 635
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": " The Draw",
+                    "selectionId": "16875",
+                    "ex": {
+                        "availableToBack": [
+                            {
+                                "price": 0.8,
+                                "size": 704
+                            },
+                            {
+                                "price": 1.2,
+                                "size": 153
+                            },
+                            {
+                                "price": 1.8,
+                                "size": 802
+                            }
+                        ],
+                        "availableToLay": [
+                            {
+                                "price": 1.1,
+                                "size": 1363
+                            },
+                            {
+                                "price": 1.42,
+                                "size": 443
+                            },
+                            {
+                                "price": 1.45,
+                                "size": 635
+                            }
+                        ]
+                    }
+                }
+            ],
+            "matchName": "FC Hunedoara v FC Unirea Dej",
+            "marketId": "1.218958572",
+            "isMarketDataDelayed": false,
+            "status": "OPEN",
+            "inplay": true,
+            "Name": "Match Odds",
+            "eventTime": "2023-10-03 14:00:00",
+            "lastMatchTime": "2023-10-03 14:36:29",
+            "maxBetRate": 10,
+            "minBetRate": 0,
+            "betDelay": 5,
+            "maxBet": 200000,
+            "minBet": 100,
+            "betlock": false,
+            "display_message": null
+        }
+    ],
+    "Bookmaker": [
+        {
+            "mid": "4.1696248520-BM",
+            "t": "Bookmaker 0%Comm",
+            "sid": "4241",
+            "nation": "FC Hunedoara",
+            "b1": "0",
+            "bs1": "",
+            "l1": "0",
+            "ls1": "",
+            "gstatus": "SUSPENDED",
+            "matchName": "FC Hunedoara v FC Unirea Dej",
+            "maxBetRate": 500,
+            "minBetRate": 0,
+            "betDelay": 0,
+            "maxBet": 500000,
+            "minBet": 100,
+            "betlock": false,
+            "display_message": null
+        },
+        {
+            "mid": "4.1696248520-BM",
+            "t": "Bookmaker 0%Comm",
+            "sid": "9838",
+            "nation": "FC Unirea Dej",
+            "b1": "39",
+            "bs1": "",
+            "l1": "41",
+            "ls1": "",
+            "gstatus": "",
+            "matchName": "FC Hunedoara v FC Unirea Dej",
+            "maxBetRate": 500,
+            "minBetRate": 0,
+            "betDelay": 0,
+            "maxBet": 500000,
+            "minBet": 100,
+            "betlock": false,
+            "display_message": null
+        }
+    ]
+   
+  
+}

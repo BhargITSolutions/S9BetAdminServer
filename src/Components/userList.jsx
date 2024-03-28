@@ -5,7 +5,7 @@ import Footer from './Footer'
 function UserList() {
     return (
         <>
-            <div className="nav-md">
+            {/* <div className="nav-md"> */}
                 <div className="container body">
 
                     <Header />
@@ -823,7 +823,7 @@ function UserList() {
                         </div>
                     </div>
                 </div>
-            </div>
+            {/* </div> */}
 
         </>
 

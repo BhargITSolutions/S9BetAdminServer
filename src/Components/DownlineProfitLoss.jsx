@@ -3,22 +3,23 @@ import Footer from './Footer'
 import Header from './Header'
 import Cookies from 'js-cookie';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Moment from 'moment'
 
 function DownlineProfitLoss() {
 
-        // const { contextUserId } = useUser()
-        const location  = useLocation();
-        const ChilduserId = location.state?.userId; 
-    
-        console.log("Location State : ", location)
-        console.log("User context Id is : ", ChilduserId)
-        let userId;
-    
-        if(ChilduserId == null || undefined){
-            userId = Cookies.get('id');
-        } else {
-            userId = ChilduserId;
-        }
+    // const { contextUserId } = useUser()
+    const location = useLocation();
+    const ChilduserId = location.state?.userId;
+
+    console.log("Location State : ", location)
+    console.log("User context Id is : ", ChilduserId)
+    let userId;
+
+    if (ChilduserId == null || undefined) {
+        userId = Cookies.get('id');
+    } else {
+        userId = ChilduserId;
+    }
 
     // const userId = Cookies.get('id');
     const userName = Cookies.get('userName');
@@ -26,7 +27,7 @@ function DownlineProfitLoss() {
     const navigate = useNavigate();
 
 
-
+    const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
 
@@ -35,6 +36,11 @@ function DownlineProfitLoss() {
     const [alldata, setAllData] = useState([]);
     const [matchOdds, setMatchOdds] = useState([]);
     const [bookMaker, setBookMaker] = useState([]);
+    const [fromDate, setFromDate] = useState(getDefaultFromDate());
+    const [toDate, setToDate] = useState(getDefaultToDate());
+    const [searchTerm, setSearchTerm] = useState('');
+    const [perPage, setPerPage] = useState(10);
+    const [currentPage, setCurrentPage] = useState(1);
 
 
 
@@ -46,8 +52,9 @@ function DownlineProfitLoss() {
 
     const fetchMatched = async () => {
 
+        setIsLoading(true)
         try {
-            const fetched = await fetch(`http://localhost:5000/usersChild/${userId}`);
+            const fetched = await fetch(`https://api.s2bet.in/usersChild/${userId}`);
             const response = await fetched.json();
             // console.log("Get userChild matches data: " + JSON.stringify(response.Alldata));
             // setAllData(response.Alldata)
@@ -218,7 +225,18 @@ function DownlineProfitLoss() {
 
                 // console.log("Filter account statement data : " + JSON.stringify(accountStatementData))
                 setAccData(accountStatementData)
-                setAllData(betsData)
+
+                setData(betsData)
+
+                const filteredDataByDate = betsData.filter(item =>
+
+                    new Date(item.SettleTime) >= new Date(fromDate) &&
+                    new Date(item.SettleTime) <= new Date(toDate).setHours(23, 59, 59, 999)
+                );
+
+                console.log("Mereged data after by date : ", filteredDataByDate)
+
+                setAllData(filteredDataByDate)
 
                 console.log("Merged AccountStatement and bets data length: " + mergedData.length);
                 console.log("bets Data : " + JSON.stringify(betsData));
@@ -231,210 +249,315 @@ function DownlineProfitLoss() {
 
         } catch (err) {
             console.error("Error in fetching Userschild Api: " + err);
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
     }
 
 
     const getDisplayedContent = (item) => {
         if (item.source == 'bets') {
-            return item.ResultAmount > 0
-                ? `Loss from ${userName} by ${item.EventName} ${item.Market == "Fancy" ? item.Market + " " + item.Event : item.Market}`
-                : `Profit to ${userName} by ${item.EventName} ${item.Market == "Fancy" ? item.Market + " " + item.Event : item.Market}`;
-        } else {
-            return item.Deposit > 0
-                ? `Chip Withdraw from ${item.ToUserName} by ${item.UserName}  - Done By - ${item.ByUserName}`
-                : `Chip Credited to ${item.ToUserName} by ${item.UserName}  - Done By - ${item.ByUserName}`
+            return item.EventName;
         }
     };
 
 
-    const handleShowBets = (eid, marketNumber, marketSId) =>{
+    const handleShowBets = (eid, marketNumber, marketSId) => {
 
-        console.log("Event Id : "+eid + " MarketNumber : "+ marketNumber+" marketSId : "+marketSId)
+        console.log("Event Id : " + eid + " MarketNumber : " + marketNumber + " marketSId : " + marketSId)
         navigate(`/ShowBetCr/${eid}/${marketNumber}/${marketSId}`)
     }
 
 
+    function getDefaultFromDate() {
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        console.log("Default From Date : " + twoDaysAgo)
+        return twoDaysAgo.toISOString().split('T')[0];
+    }
+
+    function getDefaultToDate() {
+        const today = new Date();
+        today.setHours(23, 59, 59, 999); // Set the time to 23:59:59.999
+        console.log("Today date : " + today)
+        return today.toISOString().split('T')[0];
+    }
+
+
+    const handleFromDateChange = (e) => {
+        console.log(" From Date : " + e.target.value)
+        setFromDate(e.target.value);
+    };
+
+    const handleToDateChange = (e) => {
+        console.log(" To Date : " + e.target.value)
+        setToDate(e.target.value);
+    };
+
+
+    const handleFilter = () => {
+        const filteredData = data.filter(item => {
+            const dateToCompare = new Date(item.SettleTime);
+            const displayedContent = getDisplayedContent(item);
+            const sportFilter = document.getElementById("sportid").value;
+
+            return (
+                (sportFilter == 'Fancy' ? item.Market == 'Fancy' : sportFilter == 'All' || item.SportId == sportFilter) &&
+                dateToCompare >= new Date(fromDate) &&
+                dateToCompare <= new Date(toDate) &&
+                (searchTerm === '' || displayedContent.toLowerCase().includes(searchTerm.toLowerCase()))
+            );
+        });
+
+        console.log("Filtered data:", filteredData);
+        setAllData(filteredData);
+    };
+
+
+    const handlePerPageChange = (e) => {
+        setPerPage(parseInt(e.target.value));
+        setCurrentPage(1); // Reset to the first page when changing items per page
+    };
+
+    const indexOfLastItem = currentPage * perPage;
+    const indexOfFirstItem = indexOfLastItem - perPage;
+    const currentItems = alldata.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(alldata.length / perPage);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+    const handleClick = (pageNumber) => {
+        if (pageNumber < 1) {
+            // If the requested page number is less than 1, set currentPage to 1
+            setCurrentPage(1);
+        } else {
+            setCurrentPage(pageNumber);
+        }
+    };
+
 
     return (
         <>
-            <div className="nav-md">
-                <div className="container body">
-                    <Header />
+            {isLoading && <div className="spinner" id="loader-1" style={{ display: 'block' }}></div>}
+            {/* <div className="nav-md"> */}
+            <div className="container body">
+                <Header />
 
-                    {/* page content */}
-                    <div className="right_col" role="main" style={{ minHeight: 599 }}>
-                        <div className="loader" style={{ display: "none" }} />
-                        <div className="col-md-12">
-                            <div className="title_new_at">
-                                {" "}
-                                Profit Loss Listing
-                                <select style={{ color: "black" }} id="pages">
-                                    <option value={10} selected="selected">
-                                        10
-                                    </option>
-                                    <option value={25}>25</option>
-                                    <option value={50}>50</option>
-                                    <option value={100}>100</option>
-                                </select>
-                                <div className="pull-right">
-                                    <button className="btn_common" onclick="javascript:history.go(-1)">
-                                        Back
-                                    </button>{" "}
-                                </div>
+                {/* page content */}
+                <div className="right_col" role="main" style={{ minHeight: 599 }}>
+                    <div className="loader" style={{ display: "none" }} />
+                    <div className="col-md-12">
+                        <div className="title_new_at">
+                            {" "}
+                            Profit Loss Listing
+                            <select style={{ color: "black", fontSize:'15px' }} id="pages" onChange={handlePerPageChange}
+                                value={perPage}>
+                                <option value={10} selected="selected">
+                                    10
+                                </option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                            <div className="pull-right">
+                                <button className="btn_common" onclick="javascript:history.go(-1)">
+                                    Back
+                                </button>{" "}
                             </div>
-                        </div>
-                        <div className="col-md-12">
-                            <div className="filter_page data-background">
-                                <form
-                                    method="get"
-                                    id="formSubmit"
-                                    className="form-horizontal form-label-left input_mask"
-                                >
-                                    <div className="col-md-3 col-xs-6" style={{ padding: 0 }}>
-                                        <select className="form-control" id="sportid" style={{ margin: 0 }}>
-                                            <option value="All" selected="selected">
-                                                All
-                                            </option>
-                                            <option value="Cricket">Cricket</option>
-                                            <option value="Soccer">Soccer</option>
-                                            <option value="Tennis">Tennis</option>
-                                            <option value="Live Casino">Live Casino</option>
-                                            <option value="International Casino">Inter. Casino</option>
-                                            <option value="Fancy">Fancy</option>
-                                        </select>
-                                    </div>
-                                    <div className="col-md-2 col-xs-6" style={{ padding: 0 }}>
-                                        <input
-                                            type="datetime"
-                                            name="from_date"
-                                            defaultValue="2020-12-16 00:00:00"
-                                            id="betsstartDate"
-                                            className="form-control col-md-7 col-xs-12 has-feedback-left datetimepicker"
-                                            placeholder="From date"
-                                            autoComplete="off"
-                                        />
-                                    </div>
-                                    <div className="col-md-2 col-xs-6" style={{ padding: 0 }}>
-                                        <input
-                                            type="datetime"
-                                            name="to_date"
-                                            defaultValue="2020-12-16 23:59:59"
-                                            id="betsendDate"
-                                            className="form-control col-md-7 col-xs-12 has-feedback-left datetimepicker"
-                                            placeholder="To date"
-                                            autoComplete="off"
-                                        />
-                                    </div>
-                                    <div className="col-md-2 col-xs-6" style={{ padding: 0 }}>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            placeholder="Via ID"
-                                            id="matchname"
-                                            name="searchTerm"
-                                            defaultValue=""
-                                        />
-                                    </div>
-                                    <div className="col-md-3 col-xs-12 mobmtop">
-                                        <button
-                                            type="button"
-                                            className="blue_button"
-                                            id="submit_form_button"
-                                            onclick="filter()"
-                                            value="filter"
-                                            data-attr="submit"
-                                        >
-                                            Filter
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div className="col-md-12 col-sm-12 col-xs-12">
-                            <div id="divLoading"> </div>
-                            {/*Loading class */}
-                            <div
-                                className="table-responsive appendAjaxTbl data-background"
-                                style={{}}
-                            >
-                                <table
-                                    className="table table-striped jambo_table bulk_action"
-                                    style={{ margin: "0 !important" }}
-                                >
-                                    <thead>
-                                        <tr className="headings">
-                                            <th className="darkpurplecolor">S.No. </th>
-                                            <th className="lightgreencolor">Event Name </th>
-                                            <th className="lightgreencolor">ID</th>
-                                            <th className="darkpurplecolor">Market </th>
-                                            <th className="lightgreencolor">P_L </th>
-                                            <th className="darkpurplecolor">Commission </th>
-                                            <th className="lightgreencolor">Created On </th>
-                                            <th className="darkpurplecolor">Action </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="betlistdiv">
-
-                                        {alldata.length > 0 && alldata.map((item, index) => {
-
-                                            return (
-                                                <tr key={item.id}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{item.EventName}</td>
-                                                    <td>{item.SelectionId}</td>
-                                                    <td>{item.Market == "Fancy" ? item.Event : item.Market}</td>
-                                                    <td>{item.ResultAmount == 0 ? item.ResultAmount : item.ResultAmount * (-1)}</td>
-                                                    <td>0</td>
-                                                    <td>{item.SettleTime}</td>
-                                                    <td>
-                                                        <a onClick={(e) => { e.preventDefault(); handleShowBets(item.EventId, item.Market === "Match Odds" ? 1 : item.Market === "BookMaker" ? 2 : 3, item.Market === "Fancy" ? item.SelectionId : 0) }}>
-                                                            Show Bets
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })}
-
-
-                                    </tbody>
-                                </table>
-                                <table
-                                    className="table table-striped jambo_table bulk_action"
-                                    style={{ display: "none" }}
-                                >
-                                    <thead>
-                                        <tr className=" ">
-                                            <th className="">(Total P &amp; L ) 0</th>
-                                            <th className="">(Total Commition) 0</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
-                            <div
-                                className="dataTables_info"
-                                id="items"
-                                role="status"
-                                aria-live="polite"
-                            >
-                                Showing 1 to 10 of Entries 10
-                            </div>
-                            <div
-                                className="dataTables_paginate paging_simple_numbers pagination-row"
-                                id="paginationList"
-                            >
-                                <strong className="paginate_button">1</strong>
-                            </div>
-                            {/*commanpopup*/}{" "}
                         </div>
                     </div>
-                    <footer>
-                        <div className="pull-right" />
-                        <div className="clearfix" />
-                    </footer>
+                    <div className="col-md-12">
+                        <div className="filter_page data-background">
+                            <form
+                                method="get"
+                                id="formSubmit"
+                                className="form-horizontal form-label-left input_mask"
+                            >
+                                <div className="col-md-3 col-xs-6" style={{ padding: 0 }}>
+                                    <select className="form-control" id="sportid" style={{ margin: 0 }}>
+                                        <option value="All" selected="selected">
+                                            All
+                                        </option>
+                                        <option value="4">Cricket</option>
+                                        <option value="2">Soccer</option>
+                                        <option value="1">Tennis</option>
+                                        {/* <option value="Live Casino">Live Casino</option>
+                                        <option value="International Casino">Inter. Casino</option> */}
+                                        <option value="Fancy">Fancy</option>
+                                    </select>
+                                </div>
+                                <div className="col-md-2 col-xs-6" style={{ padding: 0 }}>
+                                    <input
+                                        type="date"
+                                        name="from_date"
+                                        id="betsstartDate"
+                                        className="form-control col-md-7 col-xs-12 has-feedback-left datetimepicker"
+                                        placeholder="From date"
+                                        autoComplete="off"
+                                        onChange={handleFromDateChange}
+                                        value={fromDate}
+                                    />
+                                </div>
+                                <div className="col-md-2 col-xs-6" style={{ padding: 0 }}>
+                                    <input
+                                        type="date"
+                                        name="to_date"
+                                        id="betsendDate"
+                                        className="form-control col-md-7 col-xs-12 has-feedback-left datetimepicker"
+                                        placeholder="To date"
+                                        autoComplete="off"
+                                        onChange={handleToDateChange}
+                                        value={toDate}
+                                    />
+                                </div>
+                                <div className="col-md-2 col-xs-6" style={{ padding: 0 }}>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Via ID"
+                                        id="matchname"
+                                        name="searchTerm"
+                                        autoComplete="off"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        maxLength={100}
+                                        size={50}
+                                    />
+                                </div>
+                                <div className="col-md-3 col-xs-12 mobmtop">
+                                    <button
+                                        type="button"
+                                        className="blue_button"
+                                        id="submit_form_button"
+                                        onClick={handleFilter}
+                                        value="filter"
+                                        data-attr="submit"
+                                    >
+                                        Filter
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div className="col-md-12 col-sm-12 col-xs-12">
+                        <div id="divLoading"> </div>
+                        {/*Loading class */}
+                        <div
+                            className="table-responsive appendAjaxTbl data-background"
+                            style={{}}
+                        >
+                            <table
+                                className="table table-striped jambo_table bulk_action"
+                                style={{ margin: "0 !important" }}
+                            >
+                                <thead>
+                                    <tr className="headings">
+                                        <th className="darkpurplecolor">S.No. </th>
+                                        <th className="lightgreencolor">Event Name </th>
+                                        <th className="lightgreencolor">ID</th>
+                                        <th className="darkpurplecolor">Market </th>
+                                        <th className="lightgreencolor">P_L </th>
+                                        <th className="darkpurplecolor">Commission </th>
+                                        <th className="lightgreencolor">Created On </th>
+                                        <th className="darkpurplecolor">Action </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="betlistdiv">
+
+                                    {currentItems.length > 0 && currentItems.map((item, index) => {
+
+                                        return (
+                                            <tr key={item.id}>
+                                                <td>{(currentPage - 1) * perPage + index + 1}</td>
+                                                <td>{item.EventName}</td>
+                                                <td>{item.SelectionId}</td>
+                                                <td>{item.Market == "Fancy" ? item.Event : item.Market}</td>
+                                                <td>{item.ResultAmount == 0 ? item.ResultAmount : item.ResultAmount * (-1)}</td>
+                                                <td>0</td>
+                                                <td>{Moment(new Date(item.SettleTime)).format('DD/MM/YYYY hh:mm:ss a')}</td>
+                                                <td>
+                                                    <a onClick={(e) => { e.preventDefault(); handleShowBets(item.EventId, item.Market === "Match Odds" ? 1 : item.Market === "BookMaker" ? 2 : 3, item.Market === "Fancy" ? item.SelectionId : 0) }}>
+                                                        Show Bets
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+
+
+                                </tbody>
+                            </table>
+                            <table
+                                className="table table-striped jambo_table bulk_action"
+                                style={{ display: "none" }}
+                            >
+                                <thead>
+                                    <tr className=" ">
+                                        <th className="">(Total P &amp; L ) 0</th>
+                                        <th className="">(Total Commition) 0</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div
+                            className="dataTables_info"
+                            id="items"
+                            role="status"
+                            aria-live="polite"
+                        >
+                            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, alldata.length)} of {alldata.length} Entries
+                        </div>
+                        <div
+                            className="dataTables_paginate paging_simple_numbers pagination-row"
+                            id="paginationList"
+                        >
+                            <a
+                                className={`paginate_button previous ${currentPage === 1 ? 'disabled' : ''}`}
+                                onClick={() => handleClick(currentPage - 1)}
+                                aria-controls="datatable"
+                                data-dt-idx={0}
+                                tabIndex={0}
+                                id="datatable_previous"
+                            >
+                                Previous
+                            </a>
+                            {pageNumbers.map((pageNumber) => (
+                                <a
+                                    key={pageNumber}
+                                    className={`paginate_button ${currentPage === pageNumber ? 'current' : ''}`}
+                                    onClick={() => handleClick(pageNumber)}
+                                    aria-controls="datatable"
+                                    data-dt-idx={pageNumber}
+                                    tabIndex={0}
+                                >
+                                    {pageNumber}
+                                </a>
+                            ))}
+                            <a
+                                className={`paginate_button next ${currentPage === totalPages ? 'disabled' : ''}`}
+                                onClick={() => handleClick(currentPage + 1)}
+                                aria-controls="datatable"
+                                data-dt-idx={3}
+                                tabIndex={0}
+                                id="datatable_next"
+                            >
+                                Next
+                            </a>
+                        </div>
+                        {/*commanpopup*/}{" "}
+                    </div>
                 </div>
-                <Footer />
-            </div >
+                <footer>
+                    <div className="pull-right" />
+                    <div className="clearfix" />
+                </footer>
+            </div>
+            <Footer />
+            {/* </div > */}
 
 
 

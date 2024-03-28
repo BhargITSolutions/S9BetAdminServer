@@ -15,6 +15,7 @@ function MatchDetailList() {
 
     const navigate = useNavigate();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState([]);
     const [calculateResultAmount, setCalculateResultAmount] = useState(0);
 
@@ -29,9 +30,9 @@ function MatchDetailList() {
 
 
     const fetchMatched = async () => {
-
+        setIsLoading(true)
         try {
-            const fetched = await fetch(`http://localhost:5000/usersChild/${userId}`);
+            const fetched = await fetch(`https://api.s2bet.in/usersChild/${userId}`);
             const response = await fetched.json();
             // console.log("Get userChild matches data: " + JSON.stringify(response.Alldata));
             // setAllData(response.Alldata)
@@ -292,13 +293,16 @@ function MatchDetailList() {
 
         } catch (err) {
             console.error("Error in fetching Userschild Api: " + err);
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
     }
 
 
-    const handleShowBets = (eid, marketNumber, marketSId) =>{
+    const handleShowBets = (eid, marketNumber, marketSId) => {
 
-        console.log("Event Id : "+eid + " MarketNumber : "+ marketNumber+" marketSId : "+marketSId)
+        console.log("Event Id : " + eid + " MarketNumber : " + marketNumber + " marketSId : " + marketSId)
         navigate(`/ShowBetCr/${eid}/${marketNumber}/${marketSId}`)
     }
 
@@ -311,229 +315,231 @@ function MatchDetailList() {
 
     return (
         <>
+            {isLoading && <div className="spinner" id="loader-1" style={{ display: 'block' }}></div>}
 
-            <div className="nav-md">
-                <div className="container body">
-                    <Header />
-                    {/* page content */}
-                    <div
-                        className="right_col main_container"
-                        role="main"
-                        style={{ minHeight: 599 }}
-                    >
-                        <div id="page-wrapper">
-                            <div className="container">
-                                <section id="content">
-                                    <section className="vbox">
-                                        <section className="">
-                                            <div className="row">
-                                                <div className="col-md-12">
-                                                    <div className="title_new_at">
-                                                        Match Details{" "}
-                                                        <button
-                                                            style={{ float: "right" }}
-                                                            onclick="javascript:history.go(-1)"
-                                                            backbutton=""
-                                                            className="btn btn-xs btn-primary"
-                                                        >
-                                                            Back
-                                                        </button>
-                                                    </div>
+
+            {/* <div className="nav-md"> */}
+            <div className="container body">
+                <Header />
+                {/* page content */}
+                <div
+                    className="right_col main_container"
+                    role="main"
+                    style={{ minHeight: 599 }}
+                >
+                    <div id="page-wrapper">
+                        <div className="container">
+                            <section id="content">
+                                <section className="vbox">
+                                    <section className="">
+                                        <div className="row">
+                                            <div className="col-md-12">
+                                                <div className="title_new_at">
+                                                    Match Details{" "}
+                                                    <button
+                                                        style={{ float: "right" }}
+                                                        onclick="javascript:history.go(-1)"
+                                                        backbutton=""
+                                                        className="btn btn-xs btn-primary"
+                                                    >
+                                                        Back
+                                                    </button>
                                                 </div>
-                                                <div className="col-md-12 col-sm-12 col-xs-12">
-                                                    <div id="divLoading" />
-                                                    <div className="table-scroll table-responsive">
+                                            </div>
+                                            <div className="col-md-12 col-sm-12 col-xs-12">
+                                                <div id="divLoading" />
+                                                <div className="table-scroll table-responsive">
+                                                    <div
+                                                        id="DataTables_Table_23_wrapper"
+                                                        className="dataTables_wrapper no-footer"
+                                                    >
                                                         <div
-                                                            id="DataTables_Table_23_wrapper"
-                                                            className="dataTables_wrapper no-footer"
+                                                            id="DataTables_Table_23_filter"
+                                                            className="dataTables_filter"
                                                         >
-                                                            <div
-                                                                id="DataTables_Table_23_filter"
-                                                                className="dataTables_filter"
-                                                            >
-                                                                <label>
-                                                                    Search:
-                                                                    <input
-                                                                        type="search"
-                                                                        className=""
-                                                                        placeholder=""
+                                                            <label>
+                                                                Search:
+                                                                <input
+                                                                    type="search"
+                                                                    className=""
+                                                                    placeholder=""
+                                                                    aria-controls="DataTables_Table_23"
+                                                                />
+                                                            </label>
+                                                        </div>
+                                                        <table
+                                                            datatable=""
+                                                            className="table table-striped jambo_table bulk_action no-footer dataTable"
+                                                            id="DataTables_Table_23"
+                                                            role="grid"
+                                                            aria-describedby="DataTables_Table_23_info"
+                                                            style={{}}
+                                                        >
+                                                            <thead>
+                                                                <tr className="headings" role="row">
+                                                                    <th
+                                                                        className="sorting_asc"
+                                                                        tabIndex={0}
                                                                         aria-controls="DataTables_Table_23"
-                                                                    />
-                                                                </label>
-                                                            </div>
-                                                            <table
-                                                                datatable=""
-                                                                className="table table-striped jambo_table bulk_action no-footer dataTable"
-                                                                id="DataTables_Table_23"
-                                                                role="grid"
-                                                                aria-describedby="DataTables_Table_23_info"
-                                                                style={{}}
-                                                            >
-                                                                <thead>
-                                                                    <tr className="headings" role="row">
-                                                                        <th
-                                                                            className="sorting_asc"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="S.No. : activate to sort column descending"
-                                                                            style={{ width: 102 }}
-                                                                            aria-sort="ascending"
-                                                                        >
-                                                                            S.No.
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Event Name : activate to sort column ascending"
-                                                                            style={{ width: 216 }}
-                                                                        >
-                                                                            Event Name
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Market : activate to sort column ascending"
-                                                                            style={{ width: 138 }}
-                                                                        >
-                                                                            Market
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="P_L : activate to sort column ascending"
-                                                                            style={{ width: 76 }}
-                                                                        >
-                                                                            P_L
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Comm : activate to sort column ascending"
-                                                                            style={{ width: 122 }}
-                                                                        >
-                                                                            Comm
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Comm : activate to sort column ascending"
-                                                                            style={{ width: 122 }}
-                                                                        >
-                                                                            Total
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Comm : activate to sort column ascending"
-                                                                            style={{ width: 122 }}
-                                                                        >
-                                                                            Result
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Date : activate to sort column ascending"
-                                                                            style={{ width: 90 }}
-                                                                        >
-                                                                            Date
-                                                                        </th>
-                                                                        <th
-                                                                            className="sorting"
-                                                                            tabIndex={0}
-                                                                            aria-controls="DataTables_Table_23"
-                                                                            rowSpan={1}
-                                                                            colSpan={1}
-                                                                            aria-label="Action : activate to sort column ascending"
-                                                                            style={{ width: 126 }}
-                                                                        >
-                                                                            Action
-                                                                        </th>
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="S.No. : activate to sort column descending"
+                                                                        style={{ width: 102 }}
+                                                                        aria-sort="ascending"
+                                                                    >
+                                                                        S.No.
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Event Name : activate to sort column ascending"
+                                                                        style={{ width: 216 }}
+                                                                    >
+                                                                        Event Name
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Market : activate to sort column ascending"
+                                                                        style={{ width: 138 }}
+                                                                    >
+                                                                        Market
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="P_L : activate to sort column ascending"
+                                                                        style={{ width: 76 }}
+                                                                    >
+                                                                        P_L
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Comm : activate to sort column ascending"
+                                                                        style={{ width: 122 }}
+                                                                    >
+                                                                        Comm
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Comm : activate to sort column ascending"
+                                                                        style={{ width: 122 }}
+                                                                    >
+                                                                        Total
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Comm : activate to sort column ascending"
+                                                                        style={{ width: 122 }}
+                                                                    >
+                                                                        Result
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Date : activate to sort column ascending"
+                                                                        style={{ width: 90 }}
+                                                                    >
+                                                                        Date
+                                                                    </th>
+                                                                    <th
+                                                                        className="sorting"
+                                                                        tabIndex={0}
+                                                                        aria-controls="DataTables_Table_23"
+                                                                        rowSpan={1}
+                                                                        colSpan={1}
+                                                                        aria-label="Action : activate to sort column ascending"
+                                                                        style={{ width: 126 }}
+                                                                    >
+                                                                        Action
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="betlistdiv">
+                                                                {data.map((item, index) => (
+                                                                    <tr key={item.id}>
+                                                                        <td>{index + 1}</td>
+                                                                        <td>{item.EventName}</td>
+                                                                        <td>{item.Market == "Fancy" ? item.Event : item.Market}</td>
+                                                                        {/* <td className="checkColor green">{item.ResultAmount}</td> */}
+                                                                        <td className={item.ResultAmount > 0 ? "checkColor red" : item.ResultAmount <= 0 ? "checkColor green" : ""}>
+                                                                            {item.ResultAmount > 0 ? "-" + Math.abs(item.ResultAmount) : Math.abs(item.ResultAmount)}
+                                                                        </td>
+
+                                                                        <td>0</td>
+                                                                        <td className={item.ResultAmount > 0 ? "checkColor red" : item.ResultAmount <= 0 ? "checkColor green" : ""}>
+                                                                            {item.ResultAmount > 0 ? "-" + Math.abs(item.ResultAmount) : Math.abs(item.ResultAmount)}
+                                                                        </td>                                                                            <td>{item.Result}</td>
+                                                                        <td>{Moment(new Date(item.SettleTime)).format('YYYY-MM-DD hh:mm:ss')}</td>
+                                                                        <td>
+                                                                            <a onClick={(e) => { e.preventDefault(); handleShowBets(item.EventId, item.Market === "Match Odds" ? 1 : item.Market === "BookMaker" ? 2 : 3, item.Market === "Fancy" ? item.SelectionId : 0) }}>
+                                                                                Show Bets
+                                                                            </a>
+                                                                        </td>
                                                                     </tr>
-                                                                </thead>
-                                                                <tbody id="betlistdiv">
-                                                                    {data.map((item, index) => (
-                                                                        <tr key={item.id}>
-                                                                            <td>{index + 1}</td>
-                                                                            <td>{item.EventName}</td>
-                                                                            <td>{item.Market == "Fancy" ? item.Event : item.Market}</td>
-                                                                            {/* <td className="checkColor green">{item.ResultAmount}</td> */}
-                                                                            <td className={item.ResultAmount > 0 ? "checkColor red" : item.ResultAmount <= 0 ? "checkColor green" : ""}>
-                                                                                {item.ResultAmount > 0 ? "-" + Math.abs(item.ResultAmount) : Math.abs(item.ResultAmount)}
-                                                                            </td>
+                                                                ))}
 
-                                                                            <td>0</td>
-                                                                            <td className={item.ResultAmount > 0 ? "checkColor red" : item.ResultAmount <= 0 ? "checkColor green" : ""}>
-                                                                                {item.ResultAmount > 0 ? "-" + Math.abs(item.ResultAmount) : Math.abs(item.ResultAmount)}
-                                                                            </td>                                                                            <td>{item.Result}</td>
-                                                                            <td>{Moment(new Date(item.SettleTime)).format('YYYY-MM-DD hh:mm:ss')}</td>
-                                                                            <td>
-                                                                                <a onClick={(e)=> {e.preventDefault(); handleShowBets(item.EventId, item.Market === "Match Odds" ? 1 : item.Market === "BookMaker" ? 2 : 3, item.Market === "Fancy" ? item.SelectionId : 0)}}>
-                                                                                    Show Bets
-                                                                                </a>
-                                                                            </td>
-                                                                        </tr>
-                                                                    ))}
-
-                                                                </tbody>
-                                                                <tfoot>
-                                                                    <tr>
-                                                                        <td colSpan={3}>Total Pnl</td>
-                                                                        {/* <td colSpan={1} id="total" className="red">
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colSpan={3}>Total Pnl</td>
+                                                                    {/* <td colSpan={1} id="total" className="red">
                                                                            {calculateResultAmount}
                                                                         </td> */}
 
-                                                                        <td colSpan={1} id="total" className={calculateResultAmount > 0 ? "red" : calculateResultAmount <= 0 ? "green" : ""}>
-                                                                                {calculateResultAmount > 0 ? "-" + Math.abs(calculateResultAmount) : Math.abs(calculateResultAmount)}
-                                                                            </td>
-                                                                        <td colSpan={1} className="" id="totalCom">
-                                                                            0
-                                                                        </td>
-                                                                        <td colSpan={3} id="grandtotal" className={calculateResultAmount > 0 ? "red" : calculateResultAmount <= 0 ? "green" : ""}>
-                                                                                {calculateResultAmount > 0 ? "-" + Math.abs(calculateResultAmount) : Math.abs(calculateResultAmount)}
-                                                                            </td>
-                                                                    </tr>
-                                                                </tfoot>
-                                                            </table>
-                                                        </div>
+                                                                    <td colSpan={1} id="total" className={calculateResultAmount > 0 ? "red" : calculateResultAmount <= 0 ? "green" : ""}>
+                                                                        {calculateResultAmount > 0 ? "-" + Math.abs(calculateResultAmount) : Math.abs(calculateResultAmount)}
+                                                                    </td>
+                                                                    <td colSpan={1} className="" id="totalCom">
+                                                                        0
+                                                                    </td>
+                                                                    <td colSpan={3} id="grandtotal" className={calculateResultAmount > 0 ? "red" : calculateResultAmount <= 0 ? "green" : ""}>
+                                                                        {calculateResultAmount > 0 ? "-" + Math.abs(calculateResultAmount) : Math.abs(calculateResultAmount)}
+                                                                    </td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </section>
+                                        </div>
                                     </section>
                                 </section>
-                            </div>
+                            </section>
                         </div>
                     </div>
-                    <footer>
-                        <div className="pull-right" />
-                        <div className="clearfix" />
-                    </footer>
                 </div>
-                <Footer />
+                <footer>
+                    <div className="pull-right" />
+                    <div className="clearfix" />
+                </footer>
             </div>
+            <Footer />
+            {/* </div> */}
 
 
         </>

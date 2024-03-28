@@ -12,6 +12,7 @@ function Ledger() {
 
 
 
+    const [isLoading, setIsLoading] = useState(false);
     const [data, setData] = useState([]);
     const [combinedData, setCombinedData] = useState([]);
 
@@ -46,14 +47,15 @@ function Ledger() {
 
     const fetchMatched = async () => {
 
+        setIsLoading(true)
         try {
-            const fetched = await fetch(`http://localhost:5000/usersChild/${userId}`);
+            const fetched = await fetch(`https://api.s2bet.in/usersChild/${userId}`);
 
             const response = await fetched.json();
 
             console.log("Get userChild matches data: " + JSON.stringify(response.Alldata));
 
-            const fetchSettlementUser = await fetch(`http://localhost:5000/getSettlement/${LoggedInUserId}`)
+            const fetchSettlementUser = await fetch(`https://api.s2bet.in/getSettlement/${LoggedInUserId}`)
 
             const Ressetttlement = await fetchSettlementUser.json();
 
@@ -270,6 +272,9 @@ function Ledger() {
             }
         } catch (err) {
             console.error("Error in fetching Userschild Api: " + err);
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
     }
 
@@ -347,73 +352,75 @@ function Ledger() {
     return (
         <>
 
-            <div className="nav-md">
-                <div className="container body">
-                    <Header />
+            {isLoading && <div className="spinner" id="loader-1" style={{ display: 'block' }}></div>}
+
+            {/* <div className="nav-md"> */}
+            <div className="container body">
+                <Header />
 
 
-                    {/* page content */}
-                    <div className="right_col" role="main" style={{ minHeight: 599 }}>
-                        <div className="loader" style={{ display: "none" }} />
-                        <div className="">
-                            <div className="col-md-12">
-                                <div className="title_new_at">
-                                    Account Statement
-                                    <div className="pull-right">
-                                        <button className="btn_common" onclick="javascript:history.go(-1)">
-                                            Back
-                                        </button>{" "}
-                                    </div>
+                {/* page content */}
+                <div className="right_col" role="main" style={{ minHeight: 599 }}>
+                    <div className="loader" style={{ display: "none" }} />
+                    <div className="">
+                        <div className="col-md-12">
+                            <div className="title_new_at">
+                                Account Statement
+                                <div className="pull-right">
+                                    <button className="btn_common" onclick="javascript:history.go(-1)">
+                                        Back
+                                    </button>{" "}
                                 </div>
                             </div>
-                            <div className="col-md-12"></div>
-                            <div className="col-md-12">
-                                <div
-                                    className="filter_page  data-background"
-                                    style={{ paddingLeft: 0 }}
-                                >
-                                    {/*  <form method="post" id="formSubmit" style="color:#000;"><input type="hidden" name="compute" value=""> */}
-                                    <div className="col-md-12 custom-check">
-                                        <input
-                                            type="hidden"
-                                            name="user_id"
-                                            id="user_id"
-                                            defaultValue={36452}
-                                        />
-                                        <input
-                                            type="hidden"
-                                            name="ajaxUrl"
-                                            id="ajaxUrl"
-                                            defaultValue="CacStatement"
-                                        />
-                                    </div>
-                                    <div className="block_2" style={{ paddingLeft: 0 }}>
-                                        <input
-                                            type="date"
-                                            name="fdate"
-                                            id="fdate"
-                                            defaultValue=""
-                                            className="form-control"
-                                            placeholder="From Date"
-                                            autoComplete="off"
-                                            onChange={handleFromDateChange}
-                                            value={fromDate}
-                                        />
-                                    </div>
-                                    <div className="block_2">
-                                        <input
-                                            type="date"
-                                            name="tdate"
-                                            id="tdate"
-                                            defaultValue=""
-                                            className="form-control"
-                                            placeholder="To Date"
-                                            autoComplete="off"
-                                            onChange={handleToDateChange}
-                                            value={toDate}
-                                        />
-                                    </div>
-                                    {/* <div className="block_2">
+                        </div>
+                        <div className="col-md-12"></div>
+                        <div className="col-md-12">
+                            <div
+                                className="filter_page  data-background"
+                                style={{ paddingLeft: 0 }}
+                            >
+                                {/*  <form method="post" id="formSubmit" style="color:#000;"><input type="hidden" name="compute" value=""> */}
+                                <div className="col-md-12 custom-check">
+                                    <input
+                                        type="hidden"
+                                        name="user_id"
+                                        id="user_id"
+                                        defaultValue={36452}
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="ajaxUrl"
+                                        id="ajaxUrl"
+                                        defaultValue="CacStatement"
+                                    />
+                                </div>
+                                <div className="block_2" style={{ paddingLeft: 0 }}>
+                                    <input
+                                        type="date"
+                                        name="fdate"
+                                        id="fdate"
+                                        defaultValue=""
+                                        className="form-control"
+                                        placeholder="From Date"
+                                        autoComplete="off"
+                                        onChange={handleFromDateChange}
+                                        value={fromDate}
+                                    />
+                                </div>
+                                <div className="block_2">
+                                    <input
+                                        type="date"
+                                        name="tdate"
+                                        id="tdate"
+                                        defaultValue=""
+                                        className="form-control"
+                                        placeholder="To Date"
+                                        autoComplete="off"
+                                        onChange={handleToDateChange}
+                                        value={toDate}
+                                    />
+                                </div>
+                                {/* <div className="block_2">
                                         <input
                                             type="search"
                                             name="searchTerm"
@@ -423,85 +430,85 @@ function Ledger() {
                                             autoComplete="off"
                                         />
                                     </div> */}
-                                    <div className="block_2 buttonacount">
-                                        <button
-                                            type="button"
-                                            name="submit"
-                                            id="submit_form_button"
-                                            onClick={handleFilter}
-                                            className="blue_button"
-                                            data-attr="submit"
+                                <div className="block_2 buttonacount">
+                                    <button
+                                        type="button"
+                                        name="submit"
+                                        id="submit_form_button"
+                                        onClick={handleFilter}
+                                        className="blue_button"
+                                        data-attr="submit"
 
-                                        >
-                                            Filter
-                                        </button>
-                                        {/* <a  class="red_button">Clear</a> */}
-                                    </div>
-                                    {/* </form> */}
-                                </div>
-                            </div>
-                            <div className="col-md-12 col-sm-12 col-xs-12">
-                                <div id="divLoading"> </div>
-                                {/*Loading class */}
-                                <div className="custom-scroll table-responsive" id="filterdata">
-                                    <table
-                                        className="table table-bordered table-dark table_new_design"
-                                        id="datatablesss"
                                     >
-                                        <thead>
-                                            <tr className="headings">
-                                                <th className="darkpurplecolor">S.No.</th>
-                                                <th className="lightgreencolor">Date</th>
-                                                <th className="darkpurplecolor">Description</th>
-                                                <th className="lightgreencolor rrig text-right">Credit</th>
-                                                <th className="darkpurplecolor rrig text-right">Debit</th>
-                                                <th className="lightgreencolor rrig text-right">Balance</th>
-                                                <th className="darkpurplecolor rrig text-right">Remark</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="statments">
-                                            {filteredData.length > 0 && filteredData.map((item, index) => {
-
-                                                return (
-                                                    <tr key={item.id}>
-                                                        <td>{index + 1}</td>
-                                                        <td className=" ">{Moment(new Date(item.Date || item.SettleTime || item.SettledDate)).format('DD/MM/YYYY hh:mm:ss a')}</td>
-
-                                                        <td className=" ">
-                                                            {item.EventName ? item.EventName + " " + (item.Market === "Fancy" ? item.Market + " " + item.Event : item.Market) : (item.SettlementType === "Liya Hai" ? `Cash Recieved from ${item.ChildName}` : `Cash Paid to ${item.ChildName}`)}
-                                                        </td>
-
-                                                        <td className="green text-right">
-                                                            {item.ResultAmount ?
-                                                                (item.ResultAmount <= 0 ? item.ResultAmount * (-1) : 0) :
-                                                                (item.SettlementType === "Diya Hai" ? item.Amount * (-1) : 0)}
-                                                        </td>
-                                                        <td className="red text-right">
-                                                            {item.ResultAmount ?
-                                                                (item.ResultAmount >= 0 ? item.ResultAmount * (-1) : 0) :
-                                                                (item.SettlementType === "Liya Hai" ? item.Amount : 0)}
-                                                        </td>
-                                                        <td className={item.balance <= 0 ? "red text-right" : "green text-right"} id="balance">{item.balance} {" "}{item.balance <= 0 ? "(Dena Hai)" : "(Lena Hai)"}</td>
-                                                        <td>-</td>
-                                                    </tr>
-                                                )
-                                            })}
-
-                                        </tbody>
-                                    </table>
+                                        Filter
+                                    </button>
+                                    {/* <a  class="red_button">Clear</a> */}
                                 </div>
+                                {/* </form> */}
                             </div>
                         </div>
-                        <input type="hidden" defaultValue="Report,Settlement" id="typeid" />
-                    </div>{" "}
+                        <div className="col-md-12 col-sm-12 col-xs-12">
+                            <div id="divLoading"> </div>
+                            {/*Loading class */}
+                            <div className="custom-scroll table-responsive" id="filterdata">
+                                <table
+                                    className="table table-bordered table-dark table_new_design"
+                                    id="datatablesss"
+                                >
+                                    <thead>
+                                        <tr className="headings">
+                                            <th className="darkpurplecolor">S.No.</th>
+                                            <th className="lightgreencolor">Date</th>
+                                            <th className="darkpurplecolor">Description</th>
+                                            <th className="lightgreencolor rrig text-right">Credit</th>
+                                            <th className="darkpurplecolor rrig text-right">Debit</th>
+                                            <th className="lightgreencolor rrig text-right">Balance</th>
+                                            <th className="darkpurplecolor rrig text-right">Remark</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="statments">
+                                        {filteredData.length > 0 && filteredData.map((item, index) => {
 
-                    <footer>
-                        <div className="pull-right" />
-                        <div className="clearfix" />
-                    </footer>
-                </div>
-                <Footer />
-            </div >
+                                            return (
+                                                <tr key={item.id}>
+                                                    <td>{index + 1}</td>
+                                                    <td className=" ">{Moment(new Date(item.Date || item.SettleTime || item.SettledDate)).format('DD/MM/YYYY hh:mm:ss a')}</td>
+
+                                                    <td className=" ">
+                                                        {item.EventName ? item.EventName + " " + (item.Market === "Fancy" ? item.Market + " " + item.Event : item.Market) : (item.SettlementType === "Liya Hai" ? `Cash Recieved from ${item.ChildName}` : `Cash Paid to ${item.ChildName}`)}
+                                                    </td>
+
+                                                    <td className="green text-right">
+                                                        {item.ResultAmount ?
+                                                            (item.ResultAmount <= 0 ? item.ResultAmount * (-1) : 0) :
+                                                            (item.SettlementType === "Diya Hai" ? item.Amount * (-1) : 0)}
+                                                    </td>
+                                                    <td className="red text-right">
+                                                        {item.ResultAmount ?
+                                                            (item.ResultAmount >= 0 ? item.ResultAmount * (-1) : 0) :
+                                                            (item.SettlementType === "Liya Hai" ? item.Amount : 0)}
+                                                    </td>
+                                                    <td className={item.balance <= 0 ? "red text-right" : "green text-right"} id="balance">{item.balance} {" "}{item.balance <= 0 ? "(Dena Hai)" : "(Lena Hai)"}</td>
+                                                    <td>-</td>
+                                                </tr>
+                                            )
+                                        })}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" defaultValue="Report,Settlement" id="typeid" />
+                </div>{" "}
+
+                <footer>
+                    <div className="pull-right" />
+                    <div className="clearfix" />
+                </footer>
+            </div>
+            <Footer />
+            {/* </div > */}
 
         </>
 

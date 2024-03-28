@@ -12,36 +12,70 @@ function Header() {
   const fullName = Cookies.get('fullName')
   const userId = Cookies.get('id')
   console.log(" role id : " + roleId)
+  console.log('logged in user id is : ', userId)
 
 
+  const [siteNotice, setSiteNotice] = useState('')
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [retypePassword, setRetypePassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [balance, setBalance] = useState('')
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [isUserSubMenuOpen, setIsUserSubMenuOpen] = useState(false);
+  const [isReportSubMenuOpen, SetIsReportSubMenuOpen] = useState(false);
+  const [isLiveCasinoSubMenuOpen, setLiveCasinoSubMenuOpen] = useState(false);
+  const [isSettingOpen, setIsSettingOpen] = useState(false);
 
 
 
+  // const [mobile]
 
-useEffect(()=>{
-  fetchMyBalanceApi();
-}, [])
+  useEffect(() => {
+    // Add or remove class to body based on isBodyClassAdded state
+    console.log("useEffect worked !");
+    if (mobileMenu) {
+      document.body.classList.add('nav-sm');
+      document.body.classList.remove('nav-md');
+    } else {
+      document.body.classList.add('nav-md');
+      document.body.classList.remove('nav-sm');
+    }
+    // Clean up function to remove the class on component unmount
+    // return () => {
+    //   document.body.classList.remove('my-body-class');
+    // };
+
+  }, [mobileMenu]);
 
 
-  
+  useEffect(() => {
+    fetchMyBalanceApi();
+    headerNoticeData()
+  }, [])
+
+  const headerNoticeData = async () =>{
+    const api = await fetch(`https://api.s2bet.in/api/getMasterData`)
+    const apiData = await api.json();
+    console.log("Header data is : ", apiData[0])
+    setSiteNotice(apiData[0].SiteMessage)
+  }
+
+
+
 
   const fetchMyBalanceApi = async () => {
-      try {
-          const fetched = await fetch(`http://localhost:5000/myBalance/${userId}`);
-          const response = await fetched.json();
-          console.log("Get myBalance Api  in header: " + JSON.stringify(response.mainBalance[0].ResultAmountP));
+    try {
+      const fetched = await fetch(`https://api.s2bet.in/myBalance/${userId}`);
+      const response = await fetched.json();
+      console.log("Get myBalance Api  in header: " + JSON.stringify(response.mainBalance[0].ResultAmountP));
 
 
-          setBalance(response.mainBalance[0].ResultAmountP)
+      setBalance(response.mainBalance[0].ResultAmountP)
 
-      } catch (error) {
-          console.error("Error fetching Balance in header api " + error);
-      }
+    } catch (error) {
+      console.error("Error fetching Balance in header api " + error);
+    }
   };
 
 
@@ -57,7 +91,7 @@ useEffect(()=>{
       console.log("Confirm Password : " + retypePassword)
 
 
-      const response = await fetch('http://localhost:5000/changePassword', {
+      const response = await fetch('https://api.s2bet.in/changePassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +121,7 @@ useEffect(()=>{
   const handleLogout = async () => {
     try {
 
-      const response = await fetch('http://localhost:5000/logout', {
+      const response = await fetch('https://api.s2bet.in/logout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +133,7 @@ useEffect(()=>{
 
       const result = await response.json();
 
-      console.log("Result is : "+ JSON.stringify(result.message))
+      console.log("Result is : " + JSON.stringify(result.message))
 
       if (result.message == "Logged Out ") {
         // Password changed successfully
@@ -122,8 +156,6 @@ useEffect(()=>{
   }
 
 
-
-
   return (
     <>
 
@@ -135,7 +167,7 @@ useEffect(()=>{
               style={{ border: 0, textAlign: "left" }}
             >
               <a href="/dashboard" className="site_title">
-                <img src="images/logo.png" alt="wbt" />
+                <img src="https://ag.s2bet.in/images/logo.png" alt="wbt" />
               </a>
             </div>
             <div className="clearfix" />
@@ -155,77 +187,36 @@ useEffect(()=>{
                     </a>
                   </li>
                   <li>
-                    <a>
+                    <a onClick={() => { setIsUserSubMenuOpen(prev => !prev) }}>
                       <i className="far fa-address-card" aria-hidden="true" />{" "}
                       User{" "}
                       <span className="fa fa-chevron-down" aria-hidden="true" />
                     </a>
-                    <ul className="nav child_menu">
+                    <ul className="nav child_menu" style={isUserSubMenuOpen ? { display: "block" } : { display: "none" }}>
                       {/* <li style=" "><a href="/createUser/2/651e643a4c0613bef5e7b045"><i class="fa fa-plus-square" style="width: auto !important;font-size: 15px !important;"></i> Add New </a></li> */}
-                      <li id="hlistm" style={{ display: "block" }}>
-                        <a href={`/adminList`}>
-                          <i
-                            className="fa fa-users"
-                            style={{
-                              width: "auto !important",
-                              fontSize: "15px !important"
-                            }}
-                          // aria-hidden="true"
-                          />{" "}
+                      <li id="hlistm" style={{ display: roleId <= "1" ? "block" : "none" }}>
+                        <a href='/adminList/2/0'>
+
                           Tech Admin{" "}
                         </a>
                       </li>
-                      <li id="smlistm" style={{ display: "block" }}>
-                        <a href="/userList/0/1/1">
-                          <i
-                            className="fa fa-users"
-                            style={{
-                              width: "auto !important",
-                              fontSize: "15px !important"
-                            }}
-                          // aria-hidden="true"
-                          />{" "}
-                          Super Master{" "}
-                        </a>
+                      <li id="smlistm" style={{ display: roleId <= "2" ? "block" : "none" }}>
+                        <a href="/adminList/3/0"> Super Admin</a>
                       </li>
-                      <li id="mlistm" style={{ display: "block" }}>
-                        <a href="/adminList">
-                          <i
-                            className="fa fa-users"
-                            style={{
-                              width: "auto !important",
-                              fontSize: "15px !important"
-                            }}
-                          // aria-hidden="true"
-                          />{" "}
-                          Master{" "}
-                        </a>
+                      <li id="mlistm" style={{ display: roleId <= "3" ? "block" : "none" }}>
+                        <a href="/adminList/4/0"> Sub Admin</a>
                       </li>
-                      <li id="ulistm">
-                        <a href="/userList">
-                          <i
-                            className="fa fa-users"
-                            style={{
-                              width: "auto !important",
-                              fontSize: "15px !important"
-                            }}
-                          // aria-hidden="true"
-                          />{" "}
-                          Users{" "}
-                        </a>
+                      <li id="mlistm" style={{ display: roleId <= "4" ? "block" : "none" }}>
+                        <a href="/adminList/5/0"> Super Super</a>
                       </li>
-                      <li>
-                        <a href="/closeUser">
-                          <i
-                            className="fa fa-users"
-                            style={{
-                              width: "auto !important",
-                              fontSize: "15px !important"
-                            }}
-                          // aria-hidden="true"
-                          />{" "}
-                          Close Users{" "}
-                        </a>
+                      <li id="mlistm" style={{ display: roleId <= "5" ? "block" : "none" }}>
+                        <a href="/adminList/6/0"> Super</a>
+                      </li>
+                      <li id="mlistm" style={{ display: roleId <= "6" ? "block" : "none" }}>
+                        <a href="/adminList/7/0"> Master</a>
+                      </li>
+                      <li id="mlistm" style={{ display: roleId <= "7" ? "block" : "none" }}>
+                        <a href="/adminList/8/0"> User</a>
                       </li>
                     </ul>
                   </li>
@@ -249,14 +240,14 @@ useEffect(()=>{
                     </a>
                   </li>
                   <li className="has-sub">
-                    <a>
+                    <a onClick={() => { SetIsReportSubMenuOpen(prev => !prev) }} >
                       <i
                         className="fas fa-cloud-download-alt"
                         aria-hidden="true"
                       />{" "}
                       Report{" "}
                     </a>
-                    <ul className="nav child_menu">
+                    <ul className="nav child_menu" style={isReportSubMenuOpen ? { display: "block" } : { display: "none" }}>
                       <li>
                         <a href="/accountInfo">Account Info </a>
                       </li>
@@ -266,7 +257,7 @@ useEffect(()=>{
                       <li>
                         <a href="/chipSummary">Chip Summary </a>
                       </li>
-                      <li>
+                      {/* <li>
                         <a href="/clientpl/dkdk90/10/1/0/0">Client P L</a>
                       </li>
                       <li>
@@ -287,7 +278,7 @@ useEffect(()=>{
                         <a href="/casinoProfitLoss/dkdk90/10/1/0/0">
                           Casino Profit Loss
                         </a>
-                      </li>
+                      </li> */}
                       <li>
                         <a href="/downlineProfitLoss">
                           Profit &amp; Loss
@@ -299,43 +290,52 @@ useEffect(()=>{
                         </a>
                       </li>
                       {/* <li><a href="/livegamebetHistory">Live Bet History</a></li> */}
-                      <li>
+                      {/* <li>
                         <a href="/fancystack/dkdk90/1/0/0">Fancy Stack</a>
                       </li>
                       <li>
                         <a href="/matchStake/dkdk90/1/0/0">Match Sale</a>
-                      </li>
+                      </li> */}
                     </ul>
                   </li>
-                  <li className=" has-sub">
-                    <a>
-                      <i className="fas fa-dice" aria-hidden="true" /> Live Casino{" "}
+                  <li className="has-sub" style={{ display: roleId <= "2" ? "block" : "none" }}>
+                    <span className="submenu-button" />
+                    <span className="submenu-button" />
+                    <a onClick={() => { setIsSettingOpen(prev => !prev) }}>
+                      <i className="fas fa-cog" aria-hidden="true" /> Setting
                     </a>
-                    <ul className="nav child_menu">
+                    <ul className="nav child_menu" style={isSettingOpen ? { display: "block" } : { display: "none" }}>
                       <li>
-                        <a href="/liveCasino">Casino Games 1 </a>
+                        <a href="/matchSetting">
+                          <i aria-hidden="true" /> Match Setting
+                        </a>
                       </li>
                       <li>
-                        <a href="/casino2admin">Casino Games 2 </a>
+                        <a href="/sportSetting">
+                          <i aria-hidden="true" /> Sports Setting
+                        </a>
                       </li>
-                      {/*  <li><a href="/teenPattiBook20">TeenPatti T20 </a></li><li><a href="/teenPattiBook1Day">TeenPatti 1Day</a></li><li><a href="/AndarBaharBook">Andar Bahar</a></li><li><a href="/sevenupdownBook">7 UpDown</a></li><li><a href="/Dtl2020Book">Dragon Tiger</a></li><li><a href="/thirtyTwoCardBook">32 Cards</a></li><li><a href="/amarAkbarAnthonyBook">Amar Akbar Anthony</a></li> */}
+                      <li>
+                        <a href="#">
+                          <i aria-hidden="true" /> Online User
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/deleteBetHistory">
+                          <i aria-hidden="true" /> Delete Bet History
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/globalSetting">
+                          <i aria-hidden="true" /> Global Settings
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/announcementUpdate">
+                          <i aria-hidden="true" /> Add Announcement
+                        </a>
+                      </li>
                     </ul>
-                  </li>
-                  <li>
-                    <a href="/partnershipMessage">
-                      <i
-                        style={{}}
-                        className="fas fa-envelope"
-                        aria-hidden="true"
-                      />{" "}
-                      Partnership Message{" "}
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/checkCasinoResult">
-                      <i style={{}} className="fa fa-search" aria-hidden="true" />{" "}
-                      Search Result{" "}
-                    </a>
                   </li>
                 </ul>
               </div>
@@ -356,20 +356,21 @@ useEffect(()=>{
                     className="fa fa-bars"
                     style={{ color: "#000" }}
                     aria-hidden="true"
+                    onClick={() => { setMobileMenu(prev => !prev) }}
                   />
                 </a>
               </div>
               <div className="marquee">
                 <a href="/announcement">
                   <marquee id="marqmessage" scrollamount={2}>
-                    Welcome{" "}
+                   {siteNotice}{" "}
                   </marquee>
                 </a>
               </div>
               <ul className="nav navbar-nav navbar-right">
                 <li>
                   <a
-                    href="/inPlayMatches"
+                    href="/dashboard"
                     className=" "
                     style={{ color: "#000" }}
                   >
@@ -494,7 +495,7 @@ useEffect(()=>{
             <li className="has-sub">
               <span className="submenu-button" />
               <span className="submenu-button" />
-              <a href="#">
+              <a >
                 <i className="fas fa-cloud-download-alt" aria-hidden="true" />{" "}
                 Report{" "}
               </a>
@@ -508,7 +509,7 @@ useEffect(()=>{
                 <li>
                   <a href="/chipSummary">Chip Summary </a>
                 </li>
-                <li>
+                {/* <li>
                   <a href="/clientpl/dkdk90/10/1/0/0">Client P L</a>
                 </li>
                 <li>
@@ -534,7 +535,7 @@ useEffect(()=>{
                   <a href="/internationalProfitLoss/dkdk90/10/1/0/0">
                     International Profit Loss
                   </a>
-                </li>
+                </li> */}
                 <li>
                   <a href="/downlineProfitLoss">
                     Profit &amp; Loss
@@ -544,22 +545,22 @@ useEffect(()=>{
                   <a href="/betHistory">Bet History</a>
                 </li>
                 {/* <li><a href="/livegamebetHistory">Live Bet History</a></li> */}
-                <li>
+                {/* <li>
                   <a href="/fancystack/dkdk90/1/0/0">Fancy Stack</a>
                 </li>
                 <li>
                   <a href="/matchStake/dkdk90/1/0/0">Match Sale</a>
-                </li>
+                </li> */}
               </ul>
             </li>
             <li>
-              <a href=" /partnershipMessage">
+              <a >
                 <i style={{}} className="fas fa-envelope" aria-hidden="true" />{" "}
                 Partnership Message{" "}
               </a>
             </li>
             <li>
-              <a href="/checkCasinoResult">
+              <a >
                 <i style={{}} className="fa fa-search" aria-hidden="true" />{" "}
                 Search Result{" "}
               </a>

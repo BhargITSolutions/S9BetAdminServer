@@ -10,6 +10,9 @@ function ShowBetCr() {
     const userId = Cookies.get('id')
     const roleId = Cookies.get('roleId')
     const { eid, marketNumber, marketSId } = useParams();
+
+
+    const [isLoading, setIsLoading] = useState(false);
     const [betUser, setBetUser] = useState([])
     const [calcUsers, setCalcUsers] = useState([])
     const [totalAllUsersAmount, setTotalAllUsersAmount] = useState(0);
@@ -60,8 +63,11 @@ function ShowBetCr() {
 
 
     const fetchBetHistoryApi = async () => {
+
+        setIsLoading(true)
+
         try {
-            const fetched = await fetch(`http://localhost:5000/betHistory/${userId}`);
+            const fetched = await fetch(`https://api.s2bet.in/betHistory/${userId}`);
             const response = await fetched.json();
             // console.log("Get BetHistory Api  : " + JSON.stringify(response.data));
 
@@ -216,16 +222,19 @@ function ShowBetCr() {
                 }
                 console.log("Total state : " + totalAllUsersAmount)
             }
-
-
-
+            
         } catch (error) {
             console.error("Error fetching Users api " + error);
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
     };
 
     const filterParentChild = (id, row, Clickedparent, ClickedParentAmount) => {
 
+
+        setIsLoading(true)
         console.log("Filter parent callled again")
         console.log("ID is : " + id)
         console.log("Clicked User is : " + row)
@@ -312,6 +321,7 @@ function ShowBetCr() {
             } else {
                 console.log("Target header not found.");
             }
+            setIsLoading(false)
         } else {
 
             if (id != 7) {
@@ -583,8 +593,9 @@ function ShowBetCr() {
                 }
 
             }
-
+            setIsLoading(false)
         }
+
 
     }
 
@@ -605,476 +616,477 @@ function ShowBetCr() {
 
     return (
         <>
-            <div className="nav-md">
-                <div className="container body">
-                    <Header />
+            {isLoading && <div className="spinner" id="loader-1" style={{ display: 'block' }}></div>}
+            {/* <div className="nav-md"> */}
+            <div className="container body">
+                <Header />
 
 
-                    {/* page content */}
-                    <div className="right_col" role="main" style={{ minHeight: 599 }}>
-                        <div className="loader" style={{ display: "none" }} />
-                        <div id="chipData">
-                            <div className="col-md-12">
-                                <div className="title_new_at">Show Bet History</div>
-                            </div>
-                            <div className="clearfix" />
-                            <div className="col-md-12 col-sm-12 col-xs-12" style={{ padding: 0 }}>
-                                <div className="clearfix data-background">
-                                    <div id="divLoading" />
-                                    {/*Loading class */}
-                                    {parent != 'Parent A/C' ?
-
-                                        <>
-                                            <div className="col-md-6 col-sm-6 col-xs-12 green_table">
-                                                <div className="link">PLUS ACCOUNT (Dena He)</div>
-                                                <div className="main_gre-red">
-                                                    <table
-                                                        className="table table-striped jambo_table bulk_action"
-                                                        id=""
-                                                    >
-                                                        <thead>
-                                                            <tr className="headings">
-                                                                <th className="">Name</th>
-                                                                <th className="">Account</th>
-                                                                <th className="">Chips</th>
-                                                            </tr>
-                                                        </thead>
-                                                        {totalAllUsersAmount < 0 && parentAmount >= 0 ?
-                                                            <tbody id="denaHai">
-
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-                                                                    console.log("ID : " + id)
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-
-                                                                <tr >
-                                                                    <td className=" ">Parent</td>
-                                                                    <td className="acco">
-                                                                        <a>{parent}</a>
-                                                                    </td>
-                                                                    {/* <td className=" ">{String(parentAmount).replace(/^-/, '')}</td> */}
-                                                                    <td className=" ">{parentAmount}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td className=" ">own</td>
-                                                                    <td className="acco">
-                                                                        <a>Own</a>
-                                                                    </td>
-                                                                    <td className=" ">{parent == 'Parent A/C' ? String(totalAllUsersAmount).replace(/^-/, '') : 0}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                            :
-                                                            <tbody id="denaHai">
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-                                                                    console.log("ID : " + id)
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-                                                            </tbody>}
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="denaTotal">{calcUsers.length > 0 && calcUsers
-                                                                    .filter(item => item.amount >= 0)
-                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6 col-sm-6 col-xs-12 red_table">
-                                                <div className="link minus">MINUS ACCOUNT (Lena He)</div>
-                                                <div className="main_gre-red">
-                                                    <table
-                                                        className="table table-striped jambo_table bulk_action"
-                                                        id=""
-                                                    >
-                                                        <thead>
-                                                            <tr className="headings">
-                                                                <th className="">Name</th>
-                                                                <th className="">Account</th>
-                                                                <th className="">Chips</th>
-                                                            </tr>
-                                                        </thead>
-                                                        {totalAllUsersAmount >= 0 && parentAmount < 0 ?
-                                                            <tbody id="lenaHai">
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
-                                                                    let str = item.UserN;
-                                                                    let newStr = str.split(" ");
-                                                                    let id = newStr[newStr.length - 1];
-                                                                    return (
-                                                                        <tr key={index}>
-                                                                            <td className=" ">{item.UserN}</td>
-                                                                            <td className="acco">
-                                                                                <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                    {item.UserN}
-                                                                                </a>
-                                                                            </td>
-                                                                            <td className=" ">{item.amount}</td>
-                                                                        </tr>
-                                                                    );
-                                                                })}
-                                                                <tr>
-                                                                    <td>Total</td>
-                                                                    <td />
-                                                                    <td>
-                                                                        {calcUsers.length > 0 && calcUsers
-                                                                            .filter(item => item.amount < 0)
-                                                                            .reduce((total, item) => total + item.amount, 0)}
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                            :
-                                                            <tbody id="lenaHai">
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
-
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-
-
-                                                            </tbody>}
-
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="lenaTotal">{calcUsers.length > 0 && calcUsers
-                                                                    .filter(item => item.amount < 0)
-                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </>
-
-                                        :
-                                        <>
-
-                                            <div className="col-md-6 col-sm-6 col-xs-12 green_table">
-                                                <div className="link">PLUS ACCOUNT (Dena He)</div>
-                                                <div className="main_gre-red">
-                                                    <table
-                                                        className="table table-striped jambo_table bulk_action"
-                                                        id=""
-                                                    >
-                                                        <thead>
-                                                            <tr className="headings">
-                                                                <th className="">Name</th>
-                                                                <th className="">Account</th>
-                                                                <th className="">Chips</th>
-                                                            </tr>
-                                                        </thead>
-                                                        {totalAllUsersAmount < 0 ?
-                                                            <tbody id="denaHai">
-
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-                                                                    console.log("ID : " + id)
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-
-                                                                <tr >
-                                                                    <td className=" ">Parent</td>
-                                                                    <td className="acco">
-                                                                        <a>{parent}</a>
-                                                                    </td>
-                                                                    {/* <td className=" ">{String(parentAmount).replace(/^-/, '')}</td> */}
-                                                                    <td className=" ">{parentAmount}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td className=" ">own</td>
-                                                                    <td className="acco">
-                                                                        <a>Own</a>
-                                                                    </td>
-                                                                    <td className=" ">{String(totalAllUsersAmount).replace(/^-/, '')}</td>
-                                                                </tr>
-                                                            </tbody>
-                                                            :
-                                                            <tbody id="denaHai">
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-                                                                    console.log("ID : " + id)
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-                                                            </tbody>}
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="denaTotal">{calcUsers.length > 0 && calcUsers
-                                                                    .filter(item => item.amount >= 0)
-                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6 col-sm-6 col-xs-12 red_table">
-                                                <div className="link minus">MINUS ACCOUNT (Lena He)</div>
-                                                <div className="main_gre-red">
-                                                    <table
-                                                        className="table table-striped jambo_table bulk_action"
-                                                        id=""
-                                                    >
-                                                        <thead>
-                                                            <tr className="headings">
-                                                                <th className="">Name</th>
-                                                                <th className="">Account</th>
-                                                                <th className="">Chips</th>
-                                                            </tr>
-                                                        </thead>
-                                                        {totalAllUsersAmount >= 0 ?
-                                                            <tbody id="lenaHai">
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
-
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-
-
-                                                                <tr>
-                                                                    <td className=" ">Parent</td>
-                                                                    <td className="acco">
-                                                                        <a>{parent}</a>
-                                                                    </td>
-                                                                    <td className=" ">{parentAmount}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td className=" ">own</td>
-                                                                    <td className="acco">
-                                                                        <a>Own</a>
-                                                                    </td>
-                                                                    <td className=" ">{totalAllUsersAmount * (-1)}</td>
-                                                                </tr>
-                                                            </tbody> : <tbody id="lenaHai">
-                                                                {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
-
-
-                                                                    let str = item.UserN
-                                                                    let newStr = str.split(" ")
-                                                                    let id = newStr[newStr.length - 1]
-
-
-
-                                                                    return <tr key={index}>
-                                                                        <td className=" ">{item.UserN}</td>
-                                                                        <td className="acco">
-                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
-                                                                                {item.UserN}
-                                                                            </a>
-                                                                        </td>
-                                                                        <td className=" ">{item.amount}</td>
-                                                                    </tr>
-
-                                                                })}
-
-
-                                                            </tbody>}
-
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="lenaTotal">{calcUsers.length > 0 && calcUsers
-                                                                    .filter(item => item.amount < 0)
-                                                                    .reduce((total, item) => total + item.amount, 0)}</td>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-
-                                        </>
-                                    }
-
-
-                                </div>
-                            </div>
+                {/* page content */}
+                <div className="right_col" role="main" style={{ minHeight: 599 }}>
+                    <div className="loader" style={{ display: "none" }} />
+                    <div id="chipData">
+                        <div className="col-md-12">
+                            <div className="title_new_at">Show Bet History</div>
                         </div>
-                        <div className="col-md-12 col-sm-12 col-xs-12">
-                            <div className="title_new_at">
-                                Show
-                                <select style={{ color: "black" }} id="pages" onChange={handlePerPageChange}
-                                    value={perPage}>
-                                    <option value={10} selected="selected">
-                                        10
-                                    </option>
-                                    <option value={25}>25</option>
-                                    <option value={50}>50</option>
-                                    <option value={100}>100</option>
-                                </select>
-                                Enteries
-                            </div>
-                            {/*Loading class */}
-                            <div className="custom-scroll table-responsive">
-                                <table
-                                    className="table table-bordered table-dark table_new_design jambo_table bulk_action dataTable"
-                                    id="datatables"
-                                > 
-                                    <thead>
-                                        <tr className="headings">
-                                            <th className="darkpurplecolor">S.No.</th>
-                                            <th className="lightgreencolor" value={8}>Client</th>
-                                            <th className="darkpurplecolor" value={2}>Tech Admin</th>
-                                            <th className="lightgreencolor" value={3}>Super Admin</th>
-                                            <th className="darkpurplecolor" value={4}>Sub Admin</th>
-                                            <th className="lightgreencolor" value={5}>Super Super</th>
-                                            <th className="darkpurplecolor" value={6}>Super</th>
-                                            <th className="lightgreencolor" value={7}>Master</th>
-                                            <th className="darkpurplecolor">Description</th>
-                                            <th className="lightgreencolor">Selection</th>
-                                            <th className="darkpurplecolor">Market</th>
-                                            <th className="lightgreencolor">Odds</th>
-                                            <th className="darkpurplecolor">Stack</th>
-                                            <th className="lightgreencolor">Date</th>
-                                            <th className="darkpurplecolor">P_L</th>
-                                            <th className="lightgreencolor">Profit</th>
-                                            <th className="darkpurplecolor">Liability</th>
-                                            <th className="lightgreencolor">Type</th>
-                                            <th className="darkpurplecolor">Status</th>
-                                            <th className="lightgreencolor">IP</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="betlistdiv">
-                                        {currentItems.length > 0 && currentItems.map((item, index) => (
+                        <div className="clearfix" />
+                        <div className="col-md-12 col-sm-12 col-xs-12" style={{ padding: 0 }}>
+                            <div className="clearfix data-background">
+                                <div id="divLoading" />
+                                {/*Loading class */}
+                                {parent != 'Parent A/C' ?
 
-                                            <tr className={item.Type == "back" ? "content_user_table mark-back odd" : "content_user_table mark-lay odd"} key={item.id}>
-                                                <td>{(currentPage - 1) * perPage + index + 1}</td>
-                                                <td>{item.UserN} <span className='roleID' style={{ display: 'none' }}>{item.UserRoleId}</span></td>
-                                                <td>{item.TechAdminN} <span className='roleID' style={{ display: 'none' }}>{item.TechAdminRoleId}</span></td>
-                                                <td>{item.SuperAdminN} <span className='roleID' style={{ display: 'none' }}>{item.SuperAdminRoleId}</span></td>
-                                                <td>{item.SubAdminN} <span className='roleID' style={{ display: 'none' }}>{item.SubAdminRoleId}</span></td>
-                                                <td>{item.SuperSuperN} <span className='roleID' style={{ display: 'none' }}>{item.SuperSuperRoleId}</span></td>
-                                                <td>{item.SuperN} <span className='roleID' style={{ display: 'none' }}>{item.SuperRoleId}</span></td>
-                                                <td>{item.masterN} <span className='roleID' style={{ display: 'none' }}>{item.masterRoleId}</span></td>
-                                                <td>{item.Market == "Fancy" ? item.EventName + "/" + item.Event : item.EventName}</td>
-                                                <td>{item.Selection}</td>
-                                                <td>{item.Market}</td>
-                                                <td>{item.OddsRequest}</td>
-                                                <td className="">{item.AmountStake}</td>
-                                                <td>{Moment(new Date(item.MatchedTime)).tz("Asia/Calcutta").format('ddd MMM DD hh:mm:ss z YYYY')}</td>
-                                                <td className={item.ResultAmount < 0 ? 'red' : 'green'}>{item.ResultAmount}</td>
-                                                <td className="green">{item.Profit}</td>
-                                                <td className="red">{item.Liability}</td>
-                                                <td>{item.Type}</td>
-                                                <td>{item.IsSettlement == 1 ? "SETTLED" : "OPEN"}</td>
-                                                <td>{item.IpAddress}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <p id="items">Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, betUser.length)} of Entries {betUser.length}</p>
-                                <div className="pagination-row dataTables_paginate paging_simple_numbers">
-                                    {Array.from({ length: Math.ceil(betUser.length / perPage) }, (_, i) => (
-                                        <button
-                                            key={i + 1}
-                                            className={`paginate_button ${currentPage === i + 1 ? 'current' : ''}`}
-                                            onClick={() => paginate(i + 1)}
-                                        >
-                                            {i + 1}
-                                        </button>
-                                    ))}
-                                </div>
+                                    <>
+                                        <div className="col-md-6 col-sm-6 col-xs-12 green_table">
+                                            <div className="link">PLUS ACCOUNT (Dena He)</div>
+                                            <div className="main_gre-red">
+                                                <table
+                                                    className="table table-striped jambo_table bulk_action"
+                                                    id=""
+                                                >
+                                                    <thead>
+                                                        <tr className="headings">
+                                                            <th className="">Name</th>
+                                                            <th className="">Account</th>
+                                                            <th className="">Chips</th>
+                                                        </tr>
+                                                    </thead>
+                                                    {totalAllUsersAmount < 0 && parentAmount >= 0 ?
+                                                        <tbody id="denaHai">
+
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+                                                                console.log("ID : " + id)
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+
+                                                            <tr >
+                                                                <td className=" ">Parent</td>
+                                                                <td className="acco">
+                                                                    <a>{parent}</a>
+                                                                </td>
+                                                                {/* <td className=" ">{String(parentAmount).replace(/^-/, '')}</td> */}
+                                                                <td className=" ">{parentAmount}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className=" ">own</td>
+                                                                <td className="acco">
+                                                                    <a>Own</a>
+                                                                </td>
+                                                                <td className=" ">{parent == 'Parent A/C' ? String(totalAllUsersAmount).replace(/^-/, '') : 0}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                        :
+                                                        <tbody id="denaHai">
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+                                                                console.log("ID : " + id)
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+                                                        </tbody>}
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="denaTotal">{calcUsers.length > 0 && calcUsers
+                                                                .filter(item => item.amount >= 0)
+                                                                .reduce((total, item) => total + item.amount, 0)}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6 col-sm-6 col-xs-12 red_table">
+                                            <div className="link minus">MINUS ACCOUNT (Lena He)</div>
+                                            <div className="main_gre-red">
+                                                <table
+                                                    className="table table-striped jambo_table bulk_action"
+                                                    id=""
+                                                >
+                                                    <thead>
+                                                        <tr className="headings">
+                                                            <th className="">Name</th>
+                                                            <th className="">Account</th>
+                                                            <th className="">Chips</th>
+                                                        </tr>
+                                                    </thead>
+                                                    {totalAllUsersAmount >= 0 && parentAmount < 0 ?
+                                                        <tbody id="lenaHai">
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+                                                                let str = item.UserN;
+                                                                let newStr = str.split(" ");
+                                                                let id = newStr[newStr.length - 1];
+                                                                return (
+                                                                    <tr key={index}>
+                                                                        <td className=" ">{item.UserN}</td>
+                                                                        <td className="acco">
+                                                                            <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                                {item.UserN}
+                                                                            </a>
+                                                                        </td>
+                                                                        <td className=" ">{item.amount}</td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                            <tr>
+                                                                <td>Total</td>
+                                                                <td />
+                                                                <td>
+                                                                    {calcUsers.length > 0 && calcUsers
+                                                                        .filter(item => item.amount < 0)
+                                                                        .reduce((total, item) => total + item.amount, 0)}
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                        :
+                                                        <tbody id="lenaHai">
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+
+
+                                                        </tbody>}
+
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="lenaTotal">{calcUsers.length > 0 && calcUsers
+                                                                .filter(item => item.amount < 0)
+                                                                .reduce((total, item) => total + item.amount, 0)}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </>
+
+                                    :
+                                    <>
+
+                                        <div className="col-md-6 col-sm-6 col-xs-12 green_table">
+                                            <div className="link">PLUS ACCOUNT (Dena He)</div>
+                                            <div className="main_gre-red">
+                                                <table
+                                                    className="table table-striped jambo_table bulk_action"
+                                                    id=""
+                                                >
+                                                    <thead>
+                                                        <tr className="headings">
+                                                            <th className="">Name</th>
+                                                            <th className="">Account</th>
+                                                            <th className="">Chips</th>
+                                                        </tr>
+                                                    </thead>
+                                                    {totalAllUsersAmount < 0 ?
+                                                        <tbody id="denaHai">
+
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+                                                                console.log("ID : " + id)
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+
+                                                            <tr >
+                                                                <td className=" ">Parent</td>
+                                                                <td className="acco">
+                                                                    <a>{parent}</a>
+                                                                </td>
+                                                                {/* <td className=" ">{String(parentAmount).replace(/^-/, '')}</td> */}
+                                                                <td className=" ">{parentAmount}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className=" ">own</td>
+                                                                <td className="acco">
+                                                                    <a>Own</a>
+                                                                </td>
+                                                                <td className=" ">{String(totalAllUsersAmount).replace(/^-/, '')}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                        :
+                                                        <tbody id="denaHai">
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount >= 0).map((item, index) => {
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+                                                                console.log("ID : " + id)
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+                                                        </tbody>}
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="denaTotal">{calcUsers.length > 0 && calcUsers
+                                                                .filter(item => item.amount >= 0)
+                                                                .reduce((total, item) => total + item.amount, 0)}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6 col-sm-6 col-xs-12 red_table">
+                                            <div className="link minus">MINUS ACCOUNT (Lena He)</div>
+                                            <div className="main_gre-red">
+                                                <table
+                                                    className="table table-striped jambo_table bulk_action"
+                                                    id=""
+                                                >
+                                                    <thead>
+                                                        <tr className="headings">
+                                                            <th className="">Name</th>
+                                                            <th className="">Account</th>
+                                                            <th className="">Chips</th>
+                                                        </tr>
+                                                    </thead>
+                                                    {totalAllUsersAmount >= 0 ?
+                                                        <tbody id="lenaHai">
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+
+
+                                                            <tr>
+                                                                <td className=" ">Parent</td>
+                                                                <td className="acco">
+                                                                    <a>{parent}</a>
+                                                                </td>
+                                                                <td className=" ">{parentAmount}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td className=" ">own</td>
+                                                                <td className="acco">
+                                                                    <a>Own</a>
+                                                                </td>
+                                                                <td className=" ">{totalAllUsersAmount * (-1)}</td>
+                                                            </tr>
+                                                        </tbody> : <tbody id="lenaHai">
+                                                            {calcUsers.length > 0 && calcUsers.filter(item => item.amount < 0).map((item, index) => {
+
+
+                                                                let str = item.UserN
+                                                                let newStr = str.split(" ")
+                                                                let id = newStr[newStr.length - 1]
+
+
+
+                                                                return <tr key={index}>
+                                                                    <td className=" ">{item.UserN}</td>
+                                                                    <td className="acco">
+                                                                        <a onClick={(e) => { e.preventDefault(); filterParentChild(id, item.row, item.UserN, item.amount) }}>
+                                                                            {item.UserN}
+                                                                        </a>
+                                                                    </td>
+                                                                    <td className=" ">{item.amount}</td>
+                                                                </tr>
+
+                                                            })}
+
+
+                                                        </tbody>}
+
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="lenaTotal">{calcUsers.length > 0 && calcUsers
+                                                                .filter(item => item.amount < 0)
+                                                                .reduce((total, item) => total + item.amount, 0)}</td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </>
+                                }
+
+
                             </div>
                         </div>
                     </div>
-                    <footer>
-                        <div className="pull-right" />
-                        <div className="clearfix" />
-                    </footer>
+                    <div className="col-md-12 col-sm-12 col-xs-12">
+                        <div className="title_new_at">
+                            Show
+                            <select style={{ color: "black" }} id="pages" onChange={handlePerPageChange}
+                                value={perPage}>
+                                <option value={10} selected="selected">
+                                    10
+                                </option>
+                                <option value={25}>25</option>
+                                <option value={50}>50</option>
+                                <option value={100}>100</option>
+                            </select>
+                            Enteries
+                        </div>
+                        {/*Loading class */}
+                        <div className="custom-scroll table-responsive">
+                            <table
+                                className="table table-bordered table-dark table_new_design jambo_table bulk_action dataTable"
+                                id="datatables"
+                            >
+                                <thead>
+                                    <tr className="headings">
+                                        <th className="darkpurplecolor">S.No.</th>
+                                        <th className="lightgreencolor" value={8}>Client</th>
+                                        <th className="darkpurplecolor" value={2}>Tech Admin</th>
+                                        <th className="lightgreencolor" value={3}>Super Admin</th>
+                                        <th className="darkpurplecolor" value={4}>Sub Admin</th>
+                                        <th className="lightgreencolor" value={5}>Super Super</th>
+                                        <th className="darkpurplecolor" value={6}>Super</th>
+                                        <th className="lightgreencolor" value={7}>Master</th>
+                                        <th className="darkpurplecolor">Description</th>
+                                        <th className="lightgreencolor">Selection</th>
+                                        <th className="darkpurplecolor">Market</th>
+                                        <th className="lightgreencolor">Odds</th>
+                                        <th className="darkpurplecolor">Stack</th>
+                                        <th className="lightgreencolor">Date</th>
+                                        <th className="darkpurplecolor">P_L</th>
+                                        <th className="lightgreencolor">Profit</th>
+                                        <th className="darkpurplecolor">Liability</th>
+                                        <th className="lightgreencolor">Type</th>
+                                        <th className="darkpurplecolor">Status</th>
+                                        <th className="lightgreencolor">IP</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="betlistdiv">
+                                    {currentItems.length > 0 && currentItems.map((item, index) => (
+
+                                        <tr className={item.Type == "back" ? "content_user_table mark-back odd" : "content_user_table mark-lay odd"} key={item.id}>
+                                            <td>{(currentPage - 1) * perPage + index + 1}</td>
+                                            <td>{item.UserN} <span className='roleID' style={{ display: 'none' }}>{item.UserRoleId}</span></td>
+                                            <td>{item.TechAdminN} <span className='roleID' style={{ display: 'none' }}>{item.TechAdminRoleId}</span></td>
+                                            <td>{item.SuperAdminN} <span className='roleID' style={{ display: 'none' }}>{item.SuperAdminRoleId}</span></td>
+                                            <td>{item.SubAdminN} <span className='roleID' style={{ display: 'none' }}>{item.SubAdminRoleId}</span></td>
+                                            <td>{item.SuperSuperN} <span className='roleID' style={{ display: 'none' }}>{item.SuperSuperRoleId}</span></td>
+                                            <td>{item.SuperN} <span className='roleID' style={{ display: 'none' }}>{item.SuperRoleId}</span></td>
+                                            <td>{item.masterN} <span className='roleID' style={{ display: 'none' }}>{item.masterRoleId}</span></td>
+                                            <td>{item.Market == "Fancy" ? item.EventName + "/" + item.Event : item.EventName}</td>
+                                            <td>{item.Selection}</td>
+                                            <td>{item.Market}</td>
+                                            <td>{item.OddsRequest}</td>
+                                            <td className="">{item.AmountStake}</td>
+                                            <td>{Moment(new Date(item.MatchedTime)).tz("Asia/Calcutta").format('ddd MMM DD hh:mm:ss z YYYY')}</td>
+                                            <td className={item.ResultAmount < 0 ? 'red' : 'green'}>{item.ResultAmount}</td>
+                                            <td className="green">{item.Profit}</td>
+                                            <td className="red">{item.Liability}</td>
+                                            <td>{item.Type}</td>
+                                            <td>{item.IsSettlement == 1 ? "SETTLED" : "OPEN"}</td>
+                                            <td>{item.IpAddress}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <p id="items">Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, betUser.length)} of Entries {betUser.length}</p>
+                            <div className="pagination-row dataTables_paginate paging_simple_numbers">
+                                {Array.from({ length: Math.ceil(betUser.length / perPage) }, (_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        className={`paginate_button ${currentPage === i + 1 ? 'current' : ''}`}
+                                        onClick={() => paginate(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <Footer />
-            </div >
+                <footer>
+                    <div className="pull-right" />
+                    <div className="clearfix" />
+                </footer>
+            </div>
+            <Footer />
+            {/* </div > */}
 
 
 

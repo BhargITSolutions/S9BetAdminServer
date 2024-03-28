@@ -60,7 +60,7 @@ export const GlobalSetting = () => {
 
 
   const fetchMasterData = async () => {
-    let res = await fetch("http://localhost:5000/api/getMasterData");
+    let res = await fetch("https://api.s2bet.in/api/getMasterData");
     let resData = await res.json();
     console.log(resData);
 
@@ -78,7 +78,7 @@ export const GlobalSetting = () => {
 
   // fetching the api and getting the data
   const fetchData = async () => {
-    let res = await fetch("http://localhost:5000/api/getSingleDataSports");
+    let res = await fetch("https://api.s2bet.in/api/getSingleDataSports");
     let resData = await res.json();
     console.log(resData);
     setData(resData);  // stored the api data
@@ -325,12 +325,20 @@ export const GlobalSetting = () => {
       formData.append('image', SiteLogoImg);
 
       try {
-        const response = await fetch('http://localhost:5000/api/uploadSiteLogo', {
+        const response = await fetch('https://api.s2bet.in/api/uploadSiteLogo', {
           method: 'POST',
           body: formData,
         });
 
-        console.log(response);
+        console.log("logo upload api response ",response);
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Upload Successfully..!",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        window.location.reload();
 
       } catch (error) {
         console.error('Error during file upload:', error);
@@ -357,12 +365,20 @@ export const GlobalSetting = () => {
       formData.append('image', SiteIconImg);
 
       try {
-        const response = await fetch('http://localhost:5000/api/uploadSiteFavIcon', {
+        const response = await fetch('https://api.s2bet.in/api/uploadSiteFavIcon', {
           method: 'POST',
           body: formData,
         });
 
         console.log(response);
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Upload Successfully..!",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        window.location.reload();
 
       } catch (error) {
         console.error('Error during file upload:', error);
@@ -395,7 +411,7 @@ export const GlobalSetting = () => {
 
       try {
 
-        let res = await fetch(`http://localhost:5000/api/updateStacks/${MatchStack}/${SessionStack}`, {
+        let res = await fetch(`https://api.s2bet.in/api/updateStacks/${MatchStack}/${SessionStack}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -426,7 +442,7 @@ export const GlobalSetting = () => {
 
       try {
 
-        let res = await fetch(`http://localhost:5000/api/updateLimitAndDelay/${MinOdds}/${MaxOdds}/${DelayOdds}/${MinBookmaker}/${MaxBookmaker}/${DelayBookmaker}/${MinSession}/${MaxSession}/${DelaySession}`, {
+        let res = await fetch(`https://api.s2bet.in/api/updateLimitAndDelay/${MinOdds}/${MaxOdds}/${DelayOdds}/${MinBookmaker}/${MaxBookmaker}/${DelayBookmaker}/${MinSession}/${MaxSession}/${DelaySession}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -459,7 +475,7 @@ export const GlobalSetting = () => {
 
       try {
 
-        let res = await fetch(`http://localhost:5000/api/updateContactDetail/${WhatsAppLink1}/${WhatsAppLink2}/${TelegramLink1}/${TelegramLink2}`, {
+        let res = await fetch(`https://api.s2bet.in/api/updateContactDetail/${WhatsAppLink1}/${WhatsAppLink2}/${TelegramLink1}/${TelegramLink2}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -489,7 +505,7 @@ export const GlobalSetting = () => {
 
       try {
 
-        let res = await fetch(`http://localhost:5000/api/updateOtherSetting/${startTime}/${noticeMessage}`, {
+        let res = await fetch(`https://api.s2bet.in/api/updateOtherSetting/${startTime}/${noticeMessage}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -518,7 +534,7 @@ export const GlobalSetting = () => {
   return (
     <>
 
-      <div className="nav-md">
+      {/* <div className="nav-md"> */}
         <div className="container body">
 
           <Header />
@@ -1296,7 +1312,7 @@ export const GlobalSetting = () => {
           </footer>
         </div>
         <Footer />
-      </div>
+      {/* </div> */}
     </>
 
 

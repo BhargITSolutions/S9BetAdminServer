@@ -1,0 +1,91 @@
+{
+    "Odds": [
+        {
+            "runners": [
+                {
+                    "name": "Choinski",
+                    "selectionId": "7461",
+                    "ex": {
+                        "availableToBack": [
+                            {
+                                "price": 3.4,
+                                "size": 4299
+                            },
+                            {
+                                "price": 3.35,
+                                "size": 1034
+                            },
+                            {
+                                "price": 3.3,
+                                "size": 275
+                            }
+                        ],
+                        "availableToLay": [
+                            {
+                                "price": 3.5,
+                                "size": 3650
+                            },
+                            {
+                                "price": 3.55,
+                                "size": 90
+                            },
+                            {
+                                "price": 3.6,
+                                "size": 23909
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Bourgue",
+                    "selectionId": "16606",
+                    "ex": {
+                        "availableToBack": [
+                            {
+                                "price": 1.4,
+                                "size": 9125
+                            },
+                            {
+                                "price": 1.39,
+                                "size": 62153
+                            },
+                            {
+                                "price": 1.38,
+                                "size": 1802
+                            }
+                        ],
+                        "availableToLay": [
+                            {
+                                "price": 1.41,
+                                "size": 10363
+                            },
+                            {
+                                "price": 1.42,
+                                "size": 2443
+                            },
+                            {
+                                "price": 1.43,
+                                "size": 635
+                            }
+                        ]
+                    }
+                }
+            ],
+            "matchName": "Choinski v Bourgue",
+            "marketId": "1.218958572",
+            "isMarketDataDelayed": false,
+            "status": "OPEN",
+            "inplay": true,
+            "Name": "Match Odds",
+            "eventTime": "2023-10-03 14:00:00",
+            "lastMatchTime": "2023-10-03 14:36:29",
+            "maxBetRate": 10,
+            "minBetRate": 0,
+            "betDelay": 5,
+            "maxBet": 200000,
+            "minBet": 100,
+            "betlock": false,
+            "display_message": null
+        }
+    ]
+}

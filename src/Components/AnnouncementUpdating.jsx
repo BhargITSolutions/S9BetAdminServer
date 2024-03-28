@@ -39,7 +39,7 @@ const AnnouncementUpdating = () => {
 
   const fetchData = async () => {
 
-    let res = await fetch("http://localhost:5000/api/getdata/announcement");
+    let res = await fetch("https://api.s2bet.in/api/getdata/announcement");
     let resData = await res.json();
     console.log(resData);
     setData(resData);
@@ -64,7 +64,7 @@ const AnnouncementUpdating = () => {
       date: formattedDate
     };
 
-    let res = await fetch("http://localhost:5000/api/addData/announcement", {
+    let res = await fetch("https://api.s2bet.in/api/addData/announcement", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -96,7 +96,7 @@ const AnnouncementUpdating = () => {
   const setUpdatePreData = async (id) => {
 
     setCurrentId(id);
-    let res = await fetch(`http://localhost:5000/api/setData/announcement/${id}`);
+    let res = await fetch(`https://api.s2bet.in/api/setData/announcement/${id}`);
     let resData = await res.json();
     let date = resData[0].NotificationDate;
     const dateOnly = date.split('T')[0];
@@ -116,7 +116,7 @@ const AnnouncementUpdating = () => {
       detail: updatingDetail,
     };
 
-    let res = await fetch(`http://localhost:5000/api/updateData/announcement/${currentId}`, {
+    let res = await fetch(`https://api.s2bet.in/api/updateData/announcement/${currentId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -157,7 +157,7 @@ const AnnouncementUpdating = () => {
 
         if (!result.value) return;
 
-        let res = await fetch(`http://localhost:5000/api/updateStatus/announcement/${id}`, {
+        let res = await fetch(`https://api.s2bet.in/api/updateStatus/announcement/${id}`, {
           method: 'PUT'
         })
           .then(async (response) => {
@@ -216,7 +216,7 @@ const AnnouncementUpdating = () => {
 
   return (
     <>
-      <div className="nav-md">
+      {/* <div className="nav-md"> */}
         <div className="container body">
 
           <Header />
@@ -609,7 +609,7 @@ const AnnouncementUpdating = () => {
         </div>
         <a id="mycustomimage" href="#" download="" />
 
-      </div>
+      {/* </div> */}
     </>
 
   )

@@ -12,7 +12,7 @@ function ChipSummary() {
     // Remove double quotes if present
     loggedInUserName = loggedInUserName.replace(/^"(.*)"$/, '$1');
 
-
+    const [isLoading, setIsLoading] = useState(false);
     const [betHistoryByUserId, setBetHistoryByUserId] = useState([])
     const [usersChild, setUserChild] = useState([])
     const [totalAmount, setTotalAmount] = useState(0)
@@ -39,16 +39,17 @@ function ChipSummary() {
 
 
     const fetchBetHistoryApi = async (id, clickedRoleId, clickedUserName, clickedAmount) => {
+        setIsLoading(true)
         console.log('clicked user Id : ', id, " clicked Role id : ", clickedRoleId, " clicked user Name : ", clickedUserName, " clicked user Amount : ", clickedAmount)
 
 
         try {
-            const fetchedBet = await fetch(`http://localhost:5000/betHistory/${userId}`);
+            const fetchedBet = await fetch(`https://api.s2bet.in/betHistory/${userId}`);
             const responseBet = await fetchedBet.json();
 
-            const fetchUser = await fetch(`http://localhost:5000/getUserByParentId/${userId}`)
+            const fetchUser = await fetch(`https://api.s2bet.in/getUserByParentId/${userId}`)
 
-            const fetchSettlementUser = await fetch(`http://localhost:5000/getSettlement/${userId}`)
+            const fetchSettlementUser = await fetch(`https://api.s2bet.in/getSettlement/${userId}`)
 
             const responseUser = await fetchUser.json();
 
@@ -165,19 +166,6 @@ function ChipSummary() {
                             }, 0);
                         }
 
-
-
-
-                        // if (filterSettleed.length > 0) {
-
-
-
-                        // } else {
-
-
-                        // }
-
-
                         const resultAmount1 = filteredSettlledChild.reduce((total, currentItem) => {
                             return total + currentItem.ResultAmount;
                         }, 0);
@@ -254,7 +242,7 @@ function ChipSummary() {
 
 
 
-                    const mapUsersArray = FilterUser.map(item => item.id);
+                    const mapUsersArray = FilterUser.map(item => item.Id);
                     console.log("Mapped User ID as Array:", mapUsersArray);
                     console.log("Mapped User ID Array type:", typeof mapUsersArray);
 
@@ -272,8 +260,9 @@ function ChipSummary() {
                             });
 
                             // Find the corresponding user object in FilterUser array
-                            const userObject = FilterUser.find(user => user.id === id);
+                            const userObject = FilterUser.find(user => user.Id === id);
 
+                            console.log( "user object : ",userObject)
                             // Get the UserName of the current user
                             const userName = userObject ? userObject.UserName : "";
                             const userRoleId = userObject ? userObject.RoleId : "";
@@ -313,6 +302,9 @@ function ChipSummary() {
 
         } catch (error) {
             console.error("Error fetching Users api " + error);
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
     };
 
@@ -402,11 +394,12 @@ function ChipSummary() {
 
     const handleSave = async () => {
 
+        setIsLoading(true)
         console.log("data is : ", { settleParentId, settleParent, settleUserId, settleUser, settleAmount, settleDueAmount, settleRemark, tableName, loggedInUserName })
 
 
         try {
-            const postSettlement = await fetch(`http://localhost:5000/updateSettlement`, {
+            const postSettlement = await fetch(`https://api.s2bet.in/updateSettlement`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -448,6 +441,9 @@ function ChipSummary() {
 
         } catch (err) {
             console.error("Error during settlement : ", err)
+        } finally {
+            // Set loading state back to false after the request is completed
+            setIsLoading(false);
         }
 
 
@@ -459,469 +455,469 @@ function ChipSummary() {
 
 
         <>
-            <div className="nav-md">
-                <div className="container body">
-                    <Header />
+            {isLoading && <div className="spinner" id="loader-1" style={{ display: 'block' }}></div>}
+            {/* <div className="nav-md"> */}
+            <div className="container body">
+                <Header />
 
-                    {/* page content */}
-                    <div className="right_col" role="main" style={{ minHeight: 599 }}>
-                        <div className="loader" style={{ display: "none" }} />
-                        <div id="chipData">
-                            <div className="col-md-12">
-                                <div className="title_new_at">Chip Summary</div>
-                            </div>
-                            <div className="clearfix" />
-                            <div className="col-md-12 col-sm-12 col-xs-12">
-                                <div className="clearfix data-background">
-                                    <div className="col-md-12 col-sm-12 col-xs-12" style={{ padding: 0 }}>
-                                        <div className="popup_col_2" style={{ paddingLeft: 0 }}>
-                                            <input
-                                                type="text"
-                                                name="searchTerm"
-                                                id="searchTerm"
-                                                className="form-control"
-                                                placeholder="Search by Name"
-                                                defaultValue=""
-                                            />
-                                        </div>
-                                        <div className="popup_col_3">
-                                            <button
-                                                type="submit"
-                                                name="submit"
-                                                id="FilterData"
-                                                className="blue_button"
-                                            >
-                                                Search
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                name="submit"
-                                                id="ClearFilterData"
-                                                className="red_button"
-                                            >
-                                                Clear
-                                            </button>
-                                        </div>
-                                        <div className="popup_col_2" />
+                {/* page content */}
+                <div className="right_col" role="main" style={{ minHeight: 599 }}>
+                    <div className="loader" style={{ display: "none" }} />
+                    <div id="chipData">
+                        <div className="col-md-12">
+                            <div className="title_new_at">Chip Summary</div>
+                        </div>
+                        <div className="clearfix" />
+                        <div className="col-md-12 col-sm-12 col-xs-12">
+                            <div className="clearfix data-background">
+                                <div className="col-md-12 col-sm-12 col-xs-12" style={{ padding: 0 }}>
+                                    <div className="popup_col_2" style={{ paddingLeft: 0 }}>
+                                        <input
+                                            type="text"
+                                            name="searchTerm"
+                                            id="searchTerm"
+                                            className="form-control"
+                                            placeholder="Search by Name"
+                                            defaultValue=""
+                                        />
                                     </div>
-                                    <div id="divLoading" />
-                                    {/*Loading class */}
-                                    <div
-                                        className="col-md-6 col-sm-6 col-xs-12 green_table"
-                                        style={{ paddingLeft: 0 }}
-                                    >
-                                        <div className="link">PLUS ACCOUNT (Dena Hai)</div>
-                                        <div className="main_gre-red">
-                                            <table
-                                                className="table table-striped jambo_table bulk_action"
-                                                id=""
-                                            >
-                                                <thead>
-                                                    <tr className="headings">
-                                                        <th className="">Name</th>
-                                                        <th className="">Account</th>
-                                                        <th className="">Chips</th>
-                                                        <th className="" />
-                                                    </tr>
-                                                </thead>
+                                    <div className="popup_col_3">
+                                        <button
+                                            type="submit"
+                                            name="submit"
+                                            id="FilterData"
+                                            className="blue_button"
+                                        >
+                                            Search
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            name="submit"
+                                            id="ClearFilterData"
+                                            className="red_button"
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
+                                    <div className="popup_col_2" />
+                                </div>
+                                <div id="divLoading" />
+                                {/*Loading class */}
+                                <div
+                                    className="col-md-6 col-sm-6 col-xs-12 green_table"
+                                    style={{ paddingLeft: 0 }}
+                                >
+                                    <div className="link">PLUS ACCOUNT (Dena Hai)</div>
+                                    <div className="main_gre-red">
+                                        <table
+                                            className="table table-striped jambo_table bulk_action"
+                                            id=""
+                                        >
+                                            <thead>
+                                                <tr className="headings">
+                                                    <th className="">Name</th>
+                                                    <th className="">Account</th>
+                                                    <th className="">Chips</th>
+                                                    <th className="" />
+                                                </tr>
+                                            </thead>
 
-                                                {totalAmount < 0 ?
-                                                    <>
-                                                        <tbody id="denaHai">
-                                                            {usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0).map((item) => (
-                                                                <tr key={item.id}>
-                                                                    <td className=" ">{item.userName}</td>
-                                                                    <td className="acco">
-                                                                        <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
-                                                                    </td>
-                                                                    <td className=" green">{item.resultAmount}</td>
-                                                                    <td className=" ">
-                                                                        <a
-                                                                            className="btn btn-xs btn-primary"
-                                                                            href={`/ledger/${item.userId}`}
-                                                                        >
-                                                                            <i aria-hidden="true">Ledger</i>
-                                                                        </a>{" "}
-                                                                        <a
-                                                                            onclick="getSettleInfo('mohan18','0.00','Dena')"
-                                                                            className="btn btn-xs btn-success"
-                                                                            href=""
-                                                                            data-toggle="modal"
-                                                                            data-target="#settlementpopup"
-                                                                            title="Settlement"
-                                                                            onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Diya Hai") }}
-                                                                        >
-                                                                            <i aria-hidden="true">Settlement</i>
-                                                                        </a>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                            <tr>
-                                                                <td className=" ">Parent</td>
-                                                                <td className="green">{parent}</td>
-                                                                <td className=" green">{parent == "Parent A/C" ? 0 : parentAmount}</td>
-                                                                <td className=" ">
-                                                                    <a
-                                                                        className="btn btn-xs btn-primary"
-                                                                        href={parent == "Parent A/C" ? '/chipSummary' : `/ledger/${parentUserId}`}
-                                                                    >
-                                                                        <i aria-hidden="true">Ledger</i>
-                                                                    </a>{" "}
+                                            {totalAmount < 0 ?
+                                                <>
+                                                    <tbody id="denaHai">
+                                                        {usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0).map((item) => (
+                                                            <tr key={item.id}>
+                                                                <td className=" ">{item.userName}</td>
+                                                                <td className="acco">
+                                                                    <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
                                                                 </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td className=" ">{loggedInUserName}</td>
-                                                                <td className="acco">Own</td>
-                                                                <td className=" green">{parent == "Parent A/C" ? String(totalAmount).replace(/^-/, '') : 0}</td>
+                                                                <td className=" green">{item.resultAmount}</td>
                                                                 <td className=" ">
                                                                     <a
                                                                         className="btn btn-xs btn-primary"
-                                                                    // href="/ledger2/manis12/P"
+                                                                        href={`/ledger/${item.userId}`}
                                                                     >
                                                                         <i aria-hidden="true">Ledger</i>
                                                                     </a>{" "}
                                                                     <a
-                                                                        onclick="getOwnInfo('manis12','63000.09','Dena')"
+                                                                        onclick="getSettleInfo('mohan18','0.00','Dena')"
                                                                         className="btn btn-xs btn-success"
                                                                         href=""
                                                                         data-toggle="modal"
-                                                                        data-target="#ownSettleModal"
+                                                                        data-target="#settlementpopup"
                                                                         title="Settlement"
+                                                                        onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Diya Hai") }}
                                                                     >
                                                                         <i aria-hidden="true">Settlement</i>
                                                                     </a>
                                                                 </td>
                                                             </tr>
-                                                        </tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="denaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0)
-                                                                    .reduce((total, item) => total + item.resultAmount, 0) + parentAmount}</td>
-                                                                <td />
-                                                            </tr>
-                                                        </tfoot>
+                                                        ))}
+                                                        <tr>
+                                                            <td className=" ">Parent</td>
+                                                            <td className="green">{parent}</td>
+                                                            <td className=" green">{parent == "Parent A/C" ? 0 : parentAmount}</td>
+                                                            <td className=" ">
+                                                                <a
+                                                                    className="btn btn-xs btn-primary"
+                                                                    href={parent == "Parent A/C" ? '/chipSummary' : `/ledger/${parentUserId}`}
+                                                                >
+                                                                    <i aria-hidden="true">Ledger</i>
+                                                                </a>{" "}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className=" ">{loggedInUserName}</td>
+                                                            <td className="acco">Own</td>
+                                                            <td className=" green">{parent == "Parent A/C" ? String(totalAmount).replace(/^-/, '') : 0}</td>
+                                                            {/* <td className=" ">
+                                                                <a
+                                                                    className="btn btn-xs btn-primary"
+                                                                // href="/ledger2/manis12/P"
+                                                                >
+                                                                    <i aria-hidden="true">Ledger</i>
+                                                                </a>{" "}
+                                                                <a
+                                                                    onclick="getOwnInfo('manis12','63000.09','Dena')"
+                                                                    className="btn btn-xs btn-success"
+                                                                    href=""
+                                                                    data-toggle="modal"
+                                                                    data-target="#ownSettleModal"
+                                                                    title="Settlement"
+                                                                >
+                                                                    <i aria-hidden="true">Settlement</i>
+                                                                </a>
+                                                            </td> */}
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="denaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0)
+                                                                .reduce((total, item) => total + item.resultAmount, 0) + parentAmount}</td>
+                                                            <td />
+                                                        </tr>
+                                                    </tfoot>
 
-                                                    </>
-                                                    : <>
-                                                        <tbody id="denaHai">
-                                                            {usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0).map((item) => (
-                                                                <tr key={item.id}>
-                                                                    <td className=" ">{item.userName}</td>
-                                                                    <td className="acco">
-                                                                        <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
-                                                                    </td>
-                                                                    <td className=" green">{item.resultAmount}</td>
-                                                                    <td className=" ">
-                                                                        <a
-                                                                            className="btn btn-xs btn-primary"
-                                                                            href={`/ledger/${item.userId}`}
-                                                                        >
-                                                                            <i aria-hidden="true">Ledger</i>
-                                                                        </a>{" "}
-                                                                        <a
-                                                                            onclick="getSettleInfo('mohan18','0.00','Dena')"
-                                                                            className="btn btn-xs btn-success"
-                                                                            href=""
-                                                                            data-toggle="modal"
-                                                                            data-target="#settlementpopup"
-                                                                            title="Settlement"
-                                                                            onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Diya Hai") }}
-                                                                        >
-                                                                            <i aria-hidden="true">Settlement</i>
-                                                                        </a>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="denaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0)
-                                                                    .reduce((total, item) => total + item.resultAmount, 0)}</td>
-                                                                <td />
-                                                            </tr>
-                                                        </tfoot>
-                                                    </>}
-
-
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <div
-                                        className="col-md-6 col-sm-6 col-xs-12 red_table"
-                                        style={{ paddingRight: 0 }}
-                                    >
-                                        <div className="link minus">MINUS ACCOUNT (Lena Hai)</div>
-                                        <div className="main_gre-red">
-                                            <table
-                                                className="table table-striped jambo_table bulk_action"
-                                                id=""
-                                            >
-                                                <thead>
-                                                    <tr className="headings">
-                                                        <th className="">Name</th>
-                                                        <th className="">Account</th>
-                                                        <th className="">Chips</th>
-                                                        <th className="" />
-                                                    </tr>
-                                                </thead>
-                                                {totalAmount >= 0
-                                                    ?
-                                                    <>
-                                                        <tbody id="lenaHai">
-
-
-                                                            {usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0).map((item) => (
-                                                                <tr key={item.id}>
-                                                                    <td className=" ">{item.userName}</td>
-                                                                    <td className="acco">
-                                                                        <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
-                                                                    </td>
-                                                                    <td className=" red">{item.resultAmount}</td>
-                                                                    <td className=" ">
-                                                                        <a className="btn btn-xs btn-primary" href={`/ledger/${item.userId}`}>
-                                                                            <i aria-hidden="true">Ledger</i>
-                                                                        </a>{" "}
-                                                                        <a
-                                                                            onclick="getSettleInfo('std@30','-7287.00','Lena')"
-                                                                            className="btn btn-xs btn-success"
-                                                                            href=""
-                                                                            data-toggle="modal"
-                                                                            data-target="#settlementpopup"
-                                                                            title="Settlement"
-                                                                            onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Liya Hai") }}
-                                                                        >
-                                                                            <i aria-hidden="true">Settlement</i>
-                                                                        </a>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                            <tr>
-                                                                <td className=" ">Parent</td>
-                                                                <td className="red">{parent}</td>
-                                                                <td className=" red">{parent == "Parent A/C" ? 0 : parentAmount}</td>
-                                                                <td className=" ">
-                                                                    <a
-                                                                        className="btn btn-xs btn-primary"
-                                                                        href={parent == "Parent A/C" ? '/chipSummary' : `/ledger/${parentUserId}`}
-                                                                    >
-                                                                        <i aria-hidden="true">Ledger</i>
-                                                                    </a>{" "}
+                                                </>
+                                                : <>
+                                                    <tbody id="denaHai">
+                                                        {usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0).map((item) => (
+                                                            <tr key={item.id}>
+                                                                <td className=" ">{item.userName}</td>
+                                                                <td className="acco">
+                                                                    <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
                                                                 </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td className=" ">{loggedInUserName}</td>
-                                                                <td className="acco">Own</td>
-                                                                <td className=" red">{totalAmount}</td>
+                                                                <td className=" green">{item.resultAmount}</td>
                                                                 <td className=" ">
                                                                     <a
                                                                         className="btn btn-xs btn-primary"
-                                                                    // href=""
+                                                                        href={`/ledger/${item.userId}`}
                                                                     >
                                                                         <i aria-hidden="true">Ledger</i>
                                                                     </a>{" "}
                                                                     <a
-                                                                        onclick="getOwnInfo('manis12','63000.09','Lena')"
+                                                                        onclick="getSettleInfo('mohan18','0.00','Dena')"
                                                                         className="btn btn-xs btn-success"
                                                                         href=""
                                                                         data-toggle="modal"
-                                                                        data-target="#ownSettleModal"
+                                                                        data-target="#settlementpopup"
                                                                         title="Settlement"
+                                                                        onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Diya Hai") }}
                                                                     >
                                                                         <i aria-hidden="true">Settlement</i>
                                                                     </a>
                                                                 </td>
                                                             </tr>
-                                                        </tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="lenaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0)
-                                                                    .reduce((total, item) => total + item.resultAmount, 0) + parentAmount}</td>
-                                                                <td />
-                                                            </tr>
-                                                        </tfoot>
-                                                    </>
-
-                                                    :
-                                                    <>
-                                                        <tbody id="lenaHai">
-                                                            {usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0).map((item) => (
-                                                                <tr key={item.id}>
-                                                                    <td className=" ">{item.userName}</td>
-                                                                    <td className="acco">
-                                                                        <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
-                                                                    </td>
-                                                                    <td className=" red">{item.resultAmount}</td>
-                                                                    <td className=" ">
-                                                                        <a className="btn btn-xs btn-primary" href={`/ledger/${item.userId}`}>
-                                                                            <i aria-hidden="true">Ledger</i>
-                                                                        </a>{" "}
-                                                                        <a
-                                                                            className="btn btn-xs btn-success"
-                                                                            href=""
-                                                                            data-toggle="modal"
-                                                                            data-target="#settlementpopup"
-                                                                            title="Settlement"
-                                                                            onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Liya Hai") }}
-                                                                        >
-                                                                            <i aria-hidden="true">Settlement</i>
-                                                                        </a>
-                                                                    </td>
-                                                                </tr>
-                                                            ))}
-                                                        </tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <td>Total</td>
-                                                                <td />
-                                                                <td id="lenaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0)
-                                                                    .reduce((total, item) => total + item.resultAmount, 0)}</td>
-                                                                <td />
-                                                            </tr>
-                                                        </tfoot>
-                                                    </>
+                                                        ))}
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="denaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount >= 0)
+                                                                .reduce((total, item) => total + item.resultAmount, 0)}</td>
+                                                            <td />
+                                                        </tr>
+                                                    </tfoot>
+                                                </>}
 
 
-                                                }
-
-
-                                            </table>
-                                        </div>
+                                        </table>
                                     </div>
-                                    <div
-                                        className="col-md-6 col-sm-6 col-xs-12 red_table float-right"
-                                        style={{ paddingRight: 0 }}
-                                    >
-                                        <div className="link minus">Clear ACCOUNT (Clear Hai)</div>
-                                        <div className="main_gre-red">
-                                            <table
-                                                className="table table-striped jambo_table bulk_action"
-                                                id=""
-                                            >
-                                                <thead>
-                                                    <tr className="headings">
-                                                        <th className="">Name</th>
-                                                        <th className="">Account</th>
-                                                        <th className="">Chips</th>
-                                                        <th className="" />
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="clearHai"></tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td>Total</td>
-                                                        <td />
-                                                        <td id="clearTotal">0.00</td>
-                                                        <td />
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
+                                </div>
+                                <div
+                                    className="col-md-6 col-sm-6 col-xs-12 red_table"
+                                    style={{ paddingRight: 0 }}
+                                >
+                                    <div className="link minus">MINUS ACCOUNT (Lena Hai)</div>
+                                    <div className="main_gre-red">
+                                        <table
+                                            className="table table-striped jambo_table bulk_action"
+                                            id=""
+                                        >
+                                            <thead>
+                                                <tr className="headings">
+                                                    <th className="">Name</th>
+                                                    <th className="">Account</th>
+                                                    <th className="">Chips</th>
+                                                    <th className="" />
+                                                </tr>
+                                            </thead>
+                                            {totalAmount >= 0
+                                                ?
+                                                <>
+                                                    <tbody id="lenaHai">
+
+
+                                                        {usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0).map((item) => (
+                                                            <tr key={item.id}>
+                                                                <td className=" ">{item.userName}</td>
+                                                                <td className="acco">
+                                                                    <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
+                                                                </td>
+                                                                <td className=" red">{item.resultAmount}</td>
+                                                                <td className=" ">
+                                                                    <a className="btn btn-xs btn-primary" href={`/ledger/${item.userId}`}>
+                                                                        <i aria-hidden="true">Ledger</i>
+                                                                    </a>{" "}
+                                                                    <a
+                                                                        onclick="getSettleInfo('std@30','-7287.00','Lena')"
+                                                                        className="btn btn-xs btn-success"
+                                                                        href=""
+                                                                        data-toggle="modal"
+                                                                        data-target="#settlementpopup"
+                                                                        title="Settlement"
+                                                                        onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Liya Hai") }}
+                                                                    >
+                                                                        <i aria-hidden="true">Settlement</i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                        <tr>
+                                                            <td className=" ">Parent</td>
+                                                            <td className="red">{parent}</td>
+                                                            <td className=" red">{parent == "Parent A/C" ? 0 : parentAmount}</td>
+                                                            <td className=" ">
+                                                                <a
+                                                                    className="btn btn-xs btn-primary"
+                                                                    href={parent == "Parent A/C" ? '/chipSummary' : `/ledger/${parentUserId}`}
+                                                                >
+                                                                    <i aria-hidden="true">Ledger</i>
+                                                                </a>{" "}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className=" ">{loggedInUserName}</td>
+                                                            <td className="acco">Own</td>
+                                                            <td className=" red">{totalAmount}</td>
+                                                            <td className=" ">
+                                                                <a
+                                                                    className="btn btn-xs btn-primary"
+                                                                // href=""
+                                                                >
+                                                                    <i aria-hidden="true">Ledger</i>
+                                                                </a>{" "}
+                                                                <a
+                                                                    onclick="getOwnInfo('manis12','63000.09','Lena')"
+                                                                    className="btn btn-xs btn-success"
+                                                                    href=""
+                                                                    data-toggle="modal"
+                                                                    data-target="#ownSettleModal"
+                                                                    title="Settlement"
+                                                                >
+                                                                    <i aria-hidden="true">Settlement</i>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="lenaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0)
+                                                                .reduce((total, item) => total + item.resultAmount, 0) + parentAmount}</td>
+                                                            <td />
+                                                        </tr>
+                                                    </tfoot>
+                                                </>
+
+                                                :
+                                                <>
+                                                    <tbody id="lenaHai">
+                                                        {usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0).map((item) => (
+                                                            <tr key={item.id}>
+                                                                <td className=" ">{item.userName}</td>
+                                                                <td className="acco">
+                                                                    <a onClick={(e) => { e.preventDefault(); fetchBetHistoryApi(item.userId, item.RoleId, item.userName, item.resultAmount) }}>{item.userName}</a>
+                                                                </td>
+                                                                <td className=" red">{item.resultAmount}</td>
+                                                                <td className=" ">
+                                                                    <a className="btn btn-xs btn-primary" href={`/ledger/${item.userId}`}>
+                                                                        <i aria-hidden="true">Ledger</i>
+                                                                    </a>{" "}
+                                                                    <a
+                                                                        className="btn btn-xs btn-success"
+                                                                        href=""
+                                                                        data-toggle="modal"
+                                                                        data-target="#settlementpopup"
+                                                                        title="Settlement"
+                                                                        onClick={(e) => { e.preventDefault(); handleSettlement(item.userId, item.userName, item.resultAmount, "Liya Hai") }}
+                                                                    >
+                                                                        <i aria-hidden="true">Settlement</i>
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td>Total</td>
+                                                            <td />
+                                                            <td id="lenaTotal">{usersChild.length > 0 && usersChild.filter(item => item.filteredData.length > 0 && item.resultAmount < 0)
+                                                                .reduce((total, item) => total + item.resultAmount, 0)}</td>
+                                                            <td />
+                                                        </tr>
+                                                    </tfoot>
+                                                </>
+
+
+                                            }
+
+
+                                        </table>
+                                    </div>
+                                </div>
+                                <div
+                                    className="col-md-6 col-sm-6 col-xs-12 red_table float-right"
+                                    style={{ paddingRight: 0 }}
+                                >
+                                    <div className="link minus">Clear ACCOUNT (Clear Hai)</div>
+                                    <div className="main_gre-red">
+                                        <table
+                                            className="table table-striped jambo_table bulk_action"
+                                            id=""
+                                        >
+                                            <thead>
+                                                <tr className="headings">
+                                                    <th className="">Name</th>
+                                                    <th className="">Account</th>
+                                                    <th className="">Chips</th>
+                                                    <th className="" />
+                                                </tr>
+                                            </thead>
+                                            <tbody id="clearHai"></tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <td>Total</td>
+                                                    <td />
+                                                    <td id="clearTotal">0.00</td>
+                                                    <td />
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-                            <div
+                        </div>
+                        <div
 
-                                id="settlementpopup"
-                                role="dialog"
-                                className="modal fade in"
-                                style={{ display: "none" }}
-                            >
-                                <input type="hidden" id="settle_userid" defaultValue="santosh15" />
-                                <input type="hidden" id="settle_type" defaultValue="recieve" />
-                                <div className="modal-dialog">
-                                    <div className="modal-content">
-                                        <div className="popup_form">
-                                            <div className="title_popup">
-                                                <span
+                            id="settlementpopup"
+                            role="dialog"
+                            className="modal fade in"
+                            style={{ display: "none" }}
+                        >
+                            <input type="hidden" id="settle_userid" defaultValue="santosh15" />
+                            <input type="hidden" id="settle_type" defaultValue="recieve" />
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="popup_form">
+                                        <div className="title_popup">
+                                            <span
 
-                                                    id="title_settle"
-                                                    className="ng-star-inserted"
-                                                >
-                                                    User Name {settleUser} A/c || {prevSettleAmount}
-                                                </span>
-                                                {/**/}
-                                                <button
+                                                id="title_settle"
+                                                className="ng-star-inserted"
+                                            >
+                                                User Name {settleUser} A/c || {prevSettleAmount}
+                                            </span>
+                                            {/**/}
+                                            <button
 
-                                                    type="button"
-                                                    data-dismiss="modal"
-                                                    className="close"
-                                                    style={{ color: "#fff !important" }}
-                                                    onClick={() => {
-                                                        setTableName('')
-                                                        setSettleAmount0(0)
-                                                        setPrevSettleAmount(0)
-                                                        setSettleRemark('')
-                                                        document.getElementById('note_settle').value = ('')
-                                                    }}
-                                                >
-                                                    <div className="close_new">
-                                                        <i
+                                                type="button"
+                                                data-dismiss="modal"
+                                                className="close"
+                                                style={{ color: "#fff !important" }}
+                                                onClick={() => {
+                                                    setTableName('')
+                                                    setSettleAmount0(0)
+                                                    setPrevSettleAmount(0)
+                                                    setSettleRemark('')
+                                                    document.getElementById('note_settle').value = ('')
+                                                }}
+                                            >
+                                                <div className="close_new">
+                                                    <i
 
-                                                            className="fa fa-times-circle"
-                                                            aria-hidden="true"
-                                                        />
-                                                    </div>
-                                                </button>
-                                            </div>
-                                            <div className="content_popup">
-                                                <div className="popup_form_row">
-                                                    <form
-                                                        style={{ padding: 5 }}
-
-                                                        noValidate=""
-                                                        className="ng-untouched ng-pristine ng-valid"
-                                                    >
-                                                        <div className="popup_col_6">
-                                                            <label htmlFor="email">
-                                                                Chips :
-                                                            </label>
-                                                            <input
-                                                                type="number"
-                                                                name="Name1"
-                                                                id="amount_settle"
-                                                                value={settleAmount}
-                                                                onChange={(e) => setSettleAmount0(e.target.value)}
-                                                                onBlur={(e) => handleAmountChange(e)}
-                                                                formControlName="amount"
-                                                                className="form-control ng-untouched ng-pristine ng-valid"
-
-                                                            />
-                                                            {/**/}
-                                                        </div>
-                                                        <div className="popup_col_6">
-                                                            <label htmlFor="pwd">
-                                                                Remark:
-                                                            </label>
-                                                            <input
-
-                                                                type="text"
-                                                                name="Value1"
-                                                                id="note_settle"
-                                                                formcontrolname="remarks"
-                                                                className="form-control ng-untouched ng-pristine ng-valid"
-                                                                onChange={(e) => setSettleRemark(e.target.value)}
-                                                                onBlur={(e) => handleAmountChange(e)}
-                                                            />
-                                                            {/**/}
-                                                        </div>
-                                                        <div className="popup_col_12">
-                                                            <button
-
-                                                                type="button"
-                                                                onClick={handleSave}
-                                                                className="btn btn-success"
-                                                            >
-                                                                Save{" "}
-                                                            </button>
-                                                        </div>
-                                                    </form>
+                                                        className="fa fa-times-circle"
+                                                        aria-hidden="true"
+                                                    />
                                                 </div>
+                                            </button>
+                                        </div>
+                                        <div className="content_popup">
+                                            <div className="popup_form_row">
+                                                <form
+                                                    style={{ padding: 5 }}
+
+                                                    noValidate=""
+                                                    className="ng-untouched ng-pristine ng-valid"
+                                                >
+                                                    <div className="popup_col_6">
+                                                        <label htmlFor="email">
+                                                            Chips :
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            name="Name1"
+                                                            id="amount_settle"
+                                                            value={settleAmount}
+                                                            onChange={(e) => setSettleAmount0(e.target.value)}
+                                                            onBlur={(e) => handleAmountChange(e)}
+                                                            formControlName="amount"
+                                                            className="form-control ng-untouched ng-pristine ng-valid"
+
+                                                        />
+                                                        {/**/}
+                                                    </div>
+                                                    <div className="popup_col_6">
+                                                        <label htmlFor="pwd">
+                                                            Remark:
+                                                        </label>
+                                                        <input
+
+                                                            type="text"
+                                                            name="Value1"
+                                                            id="note_settle"
+                                                            formcontrolname="remarks"
+                                                            className="form-control ng-untouched ng-pristine ng-valid"
+                                                            onChange={(e) => setSettleRemark(e.target.value)}
+                                                            onBlur={(e) => handleAmountChange(e)}
+                                                        />
+                                                        {/**/}
+                                                    </div>
+                                                    <div className="popup_col_12">
+                                                        <button
+
+                                                            type="button"
+                                                            onClick={handleSave}
+                                                            className="btn btn-success"
+                                                        >
+                                                            Save{" "}
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
@@ -929,14 +925,15 @@ function ChipSummary() {
                             </div>
                         </div>
                     </div>
-
-                    <footer>
-                        <div className="pull-right" />
-                        <div className="clearfix" />
-                    </footer>
                 </div>
-                <Footer />
-            </div >
+
+                <footer>
+                    <div className="pull-right" />
+                    <div className="clearfix" />
+                </footer>
+            </div>
+            <Footer />
+            {/* </div > */}
         </>
 
 
